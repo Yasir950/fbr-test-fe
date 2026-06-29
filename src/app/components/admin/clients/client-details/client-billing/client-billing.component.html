@@ -1,0 +1,85 @@
+<div *ngIf='loading' class='container mt-0 py-5'>
+  <app-spinner></app-spinner>
+  <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf='client && !loading' class='container'>
+  <!-- MODAL HEADER -->
+  <div class='row wallet-modal-header-container position-relative'>
+    <div class='col-12'>
+      <span (click)='activeModal.dismiss()' class='wallet-modal-closer bg-danger'>
+        <img alt='Close Modal Icon' src='assets/images/close.png'>
+      </span>
+      <h4 class='text-center font-size-18 fw-bold extra-letter-spacing mb-0 pb-2 pt-3 text-uppercase'>
+        Billing Section<br>
+        <span class='badge bg-light-success text-dark'>{{ client.sellerBusinessName }}</span>
+      </h4>
+    </div>
+  </div>
+
+  <div *ngIf='bills.length == 0' class='row wallet-modal-content-container p-3 my-5 text-center'>
+    <div class='col-12'>
+      <!-- ASSIGNMENT FORM -->
+      <div class='mb-4'>
+        <h5 class='form-label fw-bolder text-primary text-center'><i class='text-primary ti ti-search'></i> No invoice submission found for this client.</h5>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONTENT -->
+  <div *ngIf='bills.length > 0' class='row wallet-modal-content-container p-3'>
+    <div class='col-12'>
+      <div class='table-responsive'>
+        <table class='table table-hover align-middle'>
+          <thead class='text-center fw-bolder text-primary'>
+          <tr>
+            <th>Month</th>
+            <th>Invoices Submitted</th>
+            <th class='text-center'>Status</th>
+            <th class='text-end'>Actions</th>
+          </tr>
+          </thead>
+          <tbody class='text-center'>
+          <tr *ngFor='let bill of bills'>
+            <td><strong>{{ bill.month | date:'MMM, yyyy' }}</strong></td>
+            <td>{{ bill.invoicesSubmitted }}</td>
+            <td class='text-center'>
+                <span [ngClass]='getStatusBadge(bill.status)' class='badge w-75' style='font-size: 12px;'>
+                  {{ bill.status }}
+                </span>
+            </td>
+            <td class='text-end'>
+              <!-- Action buttons with conditional display -->
+              <div class='btn-group' role='group'>
+                <!-- Show "Generate Bill" for Unpaid status -->
+                <button (click)='generateBill(bill)' *ngIf="bill.status === 'UNPAID'" class='btn btn-sm btn-outline-primary mx-2' title='Generate Bill'>
+                  <i class='ti ti-file-invoice me-1'></i> Generate Bill
+                </button>
+
+                <!-- Show "Mark As Paid" for Unpaid status -->
+                <button (click)='markAsPaid(bill)' *ngIf="bill.status === 'UNPAID' && bill.bill" class='btn btn-sm btn-outline-success' title='Mark as Paid'>
+                  <i class='ti ti-circle-check me-1'></i> Mark As Paid
+                </button>
+
+                <!-- Show "Mark as Unpaid" for Paid status -->
+                <button (click)='markAsUnpaid(bill)' *ngIf="bill.status === 'PAID' && bill.bill" class='btn btn-sm btn-outline-warning mx-2' title='Mark as Unpaid'>
+                  <i class='ti ti-cash-off me-1'></i> Mark As Unpaid
+                </button>
+
+                <button (click)='downloadPdf(bill)' *ngIf='bill.bill' class='btn btn-sm btn-outline-info mx-2' title='Download PDF'>
+                  <i class='ti ti-download me-1'></i> Download PDF
+                </button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

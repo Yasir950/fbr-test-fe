@@ -1,0 +1,13 @@
+<ul class='list-unstyled'>
+  <!-- ======= Menu collapse Icon ===== -->
+  <li class='pc-h-item pc-sidebar-collapse'>
+    <a (click)='navCollapse()' [ngClass]='{ on: navCollapsed }' class='pc-head-link ms-0' href='javascript:' id='sidebar-hide mobile-collapse' id='sidebar-hide' title='click to menu Collapse'>
+      <i class='ti ti-menu-2'></i>
+    </a>
+  </li>
+  <li class='pc-h-item pc-sidebar-popup'>
+    <a (click)='this.NavCollapsedMob.emit()' class='pc-head-link ms-0' href='javascript:' id='mobile-collapse1' title='click to menu open'>
+      <i class='ti ti-menu-2'></i>
+    </a>
+  </li>
+</ul>

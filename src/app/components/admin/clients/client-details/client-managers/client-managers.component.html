@@ -1,0 +1,87 @@
+<div *ngIf='loading' class='container mt-0 py-5'>
+  <app-spinner></app-spinner>
+  <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf='!loading' class='container'>
+  <!-- MODAL HEADER -->
+  <div class='row wallet-modal-header-container position-relative'>
+    <div class='col-12'>
+      <span (click)='activeModal.dismiss()' class='wallet-modal-closer bg-danger'>
+        <img alt='Close Modal Icon' src='assets/images/close.png'>
+      </span>
+      <h4 class='text-center font-size-18 fw-bold extra-letter-spacing mb-0 pb-2 pt-3 text-uppercase'>
+        Client Managers<br>
+        <span class='badge bg-light-success text-dark'>{{ client.sellerBusinessName }}</span>
+      </h4>
+    </div>
+  </div>
+  <div class='row wallet-modal-content-container p-3'>
+    <div class='col-12'>
+      <div class='card'>
+        <div class='card-header d-flex justify-content-between align-items-center'>
+          <h4 class='card-title mb-0'>Client Managers</h4>
+          <button (click)='addManager()' [disabled]='isAddingManager' class='btn btn-primary'>
+              <span *ngIf='!isAddingManager'>
+                <i class='ti ti-plus me-2'></i>Add Manager
+              </span>
+            <span *ngIf='isAddingManager'>
+                <span class='spinner-border spinner-border-sm me-2'></span>
+                Generating...
+              </span>
+          </button>
+        </div>
+        <div class='card-body'>
+          <!-- This wrapper gets a class to make the table look disabled while adding a new manager -->
+          <div [ngClass]="{ 'table-loading': isAddingManager }" class='table-container'>
+            <div class='table-responsive'>
+              <table class='table table-hover mb-0 text-center'>
+                <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Password</th>
+                  <th class='text-center'>Admin Type</th>
+                  <th class='text-end'>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor='let manager of managers'>
+                  <td class='font-monospace'><strong>{{ manager.username }}</strong></td>
+                  <td class='font-monospace'>{{ manager.password }}</td>
+                  <td class='text-center'>
+                    <span class='badge bg-info text-capitalize' style='font-size: 12px;'>{{ manager.adminType.toString().replace("_", " ") }}</span>
+                  </td>
+                  <td class='text-end'>
+                    <button (click)='viewManager(manager.id)' class='btn btn-sm btn-outline-info mx-2' title='Delete Manager'>
+                      <i class='ti ti-eye'></i> View
+                    </button>
+                    <button (click)='deleteManager(manager.id, manager.username)' class='btn btn-sm btn-outline-danger' title='Delete Manager'>
+                      <i class='ti ti-trash'></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                <!-- Message for when no managers exist -->
+                <tr *ngIf='managers.length === 0'>
+                  <td class='text-center' colspan='4'>
+                    <div class='alert alert-secondary mb-0'>No managers have been created for this client yet. Click "Add Manager" to begin.
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+</div>

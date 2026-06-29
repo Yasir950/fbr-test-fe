@@ -1,0 +1,130 @@
+<ng-container *ngIf='loading'>
+  <app-spinner></app-spinner>
+  <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf='!loading'>
+  <div class='card'>
+    <div *ngIf='currentView == "view"' class='card-header'>
+      <div class='row align-items-center'>
+        <div class='col-md-6'>
+          <h3 class='card-title mb-0'>Manager Details</h3>
+        </div>
+      </div>
+    </div>
+    <div class='card-body'>
+      <form (ngSubmit)='onSubmit()' [formGroup]='managerForm'>
+        <div class='row {{viewMode ? "view-disabled" : ""}}'>
+          <!-- Username -->
+          <div class='col-md-2 mb-3'>
+            <label class='form-label text-primary fw-bolder' for='username'> <i class='ti ti-user text-primary fw-bolder'></i> Username*</label>
+            <input [ngClass]="{ 'is-invalid': formSubmitted && f.username.errors }" class='form-control' formControlName='username' id='username' type='text'>
+            <div *ngIf='formSubmitted && f.username.errors' class='invalid-feedback'>
+              <div *ngIf="f.username.errors?.['required']">Username is required.</div>
+              <div *ngIf="f.username.errors?.['minlength']">Username must be at least 3 characters.</div>
+            </div>
+          </div>
+          <!-- Password -->
+          <div class='col-md-2 mb-3'>
+            <label class='form-label text-primary fw-bolder' for='password'> <i class='ti ti-key  fw-bolder'></i> Password*</label>
+            <input [ngClass]="{ 'is-invalid': formSubmitted && f.password.errors }" class='form-control' formControlName='password' id='password' type='text'>
+            <div *ngIf='formSubmitted && f.password.errors' class='invalid-feedback'>
+              <div *ngIf="f.password.errors?.['required']">Password is required.</div>
+              <div *ngIf="f.password.errors?.['minlength']">Password must be at least 10 characters.</div>
+            </div>
+          </div>
+          <!-- Admin Type -->
+          <div class='col-md-2 mb-3'>
+            <label class='form-label fw-bolder text-primary' for='adminType'><i class='ti ti-circle text-primary fw-bolder'></i> Admin Type*</label>
+            <select [ngClass]="{ 'is-invalid': formSubmitted && f.adminType.errors }" class='form-select py-2' formControlName='adminType' id='adminType'>
+              <option value='super'>Super Admin</option>
+              <option value='invoice_generator'>Invoice Generator</option>
+              <option value='reviewer'>Reviewer</option>
+              <option value='submitter'>Submitter</option>
+            </select>
+            <div *ngIf='formSubmitted && f.adminType.errors' class='invalid-feedback'>
+              <div *ngIf="f.adminType.errors?.['required']">Admin type is required.</div>
+            </div>
+          </div>
+          <!-- First Name -->
+          <div class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder text-primary' for='firstName'><i class='ti ti-user text-primary fw-bolder'></i> First Name*</label>
+            <input [ngClass]="{ 'is-invalid': formSubmitted && f.firstName.errors }" class='form-control' formControlName='firstName' id='firstName' type='text'>
+            <div *ngIf='formSubmitted && f.firstName.errors' class='invalid-feedback'>
+              <div *ngIf="f.firstName.errors?.['required']">First name is required.</div>
+              <div *ngIf="f.firstName.errors?.['minlength']">First name must be at least 3 characters.</div>
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder text-primary' for='lastName'><i class='ti ti-user text-primary fw-bolder'></i> Last Name*</label>
+            <input [ngClass]="{ 'is-invalid': formSubmitted && f.lastName.errors }" class='form-control' formControlName='lastName' id='lastName' type='text'>
+            <div *ngIf='formSubmitted && f.lastName.errors' class='invalid-feedback'>
+              <div *ngIf="f.lastName.errors?.['required']">Last name is required.</div>
+              <div *ngIf="f.lastName.errors?.['minlength']">Last name must be at least 3 characters.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class='row {{viewMode ? "view-disabled" : ""}}'>
+          <!-- Cell Number 1 -->
+          <div class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder text-primary' for='cellNumber1'><i class='ti ti-phone-plus text-primary'></i> Cell Number 1*</label>
+            <input [ngClass]="{ 'is-invalid': formSubmitted && f.cellNumber1.errors }" class='form-control' formControlName='cellNumber1' id='cellNumber1' mask='0000-0000000' placeholder='XXXX-XXXXXXX' type='text'>
+            <div *ngIf='formSubmitted && f.cellNumber1.errors' class='invalid-feedback'>
+              <div *ngIf="f.cellNumber1.errors?.['required']">Primary cell number is required.</div>
+            </div>
+          </div>
+
+          <!-- Cell Number 2 -->
+          <div class='col-md-3 mb-3'>
+            <label class='form-label text-primary fw-bolder' for='cellNumber2'><i class='ti ti-phone text-primary'></i> Cell Number 2 (Optional)</label>
+            <input class='form-control' formControlName='cellNumber2' id='cellNumber2' mask='0000-0000000' placeholder='XXXX-XXXXXXX' type='text'>
+          </div>
+
+          <!-- Address -->
+          <div class='col-md-6 mb-3'>
+            <label class='form-label fw-bolder text-primary' for='address'><i class='ti ti-location text-primary'></i> Address*</label>
+            <textarea [ngClass]="{ 'is-invalid': formSubmitted && f.address.errors }" class='form-control' formControlName='address' id='address' rows='3'></textarea>
+            <div *ngIf='formSubmitted && f.address.errors' class='invalid-feedback'>
+              <div *ngIf="f.address.errors?.['required']">Address is required.</div>
+              <div *ngIf="f.address.errors?.['minlength']">Address must be at least 10 characters.</div>
+            </div>
+          </div>
+        </div>
+        <hr>
+
+        <ng-container *ngIf='errorMsg'>
+          <div class='alert alert-danger mb-0'>
+            Error: {{errorMsg}}
+          </div>
+          <hr>
+        </ng-container>
+        <!-- Submit Button -->
+        <div *ngIf='!viewMode' class='d-flex justify-content-center'>
+          <button [disabled]='isLoading' class='btn btn-primary btn-lg' type='submit'>
+            <span *ngIf='!isLoading'>{{this.currentView === "add" ? "Add" : "Edit"}} Manager</span>
+            <span *ngIf='isLoading'>
+            <span class='spinner-border spinner-border-sm me-2'></span>
+              {{this.currentView === "add" ? "Creating" : "Updating"}}...
+          </span>
+          </button>
+        </div>
+      </form>
+      <div *ngIf='viewMode' class='d-flex justify-content-center'>
+        <button (click)='enableForm()' class='btn btn-danger btn-lg' type='submit'>
+          <span>Update this manager</span>
+        </button>
+        <button (click)='openAssignManagersView()' *ngIf='aclLevel >= 4' class='btn btn-success btn-lg mx-3'>
+          <span>Assign Clients</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,108 @@
+<div class='auth-main'>
+  <div class='auth-wrapper v3'>
+    <div class='auth-form'>
+      <div class='card'>
+        <img alt='logo' class='admin-logo' src='assets/images/vize-logo.jpeg' />
+        <h3 class='text-center text-primary py-3'>FBR Digital Invoicing Portal</h3>
+
+        <div class='card-body pt-2'>
+          <form (ngSubmit)='onSubmit()' [formGroup]='loginForm'>
+
+            <!-- Username -->
+            <div class='form-group mb-3'>
+              <label class='form-label fw-bolder text-primary' for='username'><i class='text-primary ti ti-user'></i> Username</label>
+              <input [ngClass]="{'is-invalid': submitted && f['username'].errors}" class='form-control' formControlName='username' id='username' placeholder='Enter username' type='text' />
+              <div *ngIf="submitted && f['username'].errors" class='invalid-feedback'>
+                Username is required
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group mb-3 position-relative">
+  <label class="form-label fw-bolder text-primary" for="password">
+    <i class="ti ti-lock"></i> Password
+  </label>
+
+  <input
+    [type]="hidePassword ? 'password' : 'text'"
+    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+    class="form-control pe-5"
+    formControlName="password"
+    id="password"
+    placeholder="Enter password"
+  />
+
+  <!-- Eye Icon -->
+  <span
+    class="password-toggle"
+    (click)="togglePassword()"
+  >
+    <i
+      class="ti"
+      [ngClass]="hidePassword ? 'ti-eye' : 'ti-eye-off'"
+    ></i>
+  </span>
+
+  <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+    Password is required
+  </div>
+</div>
+<!-- CAPTCHA Section -->
+<div class="form-group mb-3">
+  <label class="form-label fw-bolder text-primary">
+    <i class="ti ti-shield-check"></i> Security Verification
+  </label>
+  
+  <div class="d-flex align-items-center justify-content-between mb-2 p-2 border rounded bg-light shadow-sm">
+    <div class="captcha-box select-none" 
+         style="font-family: 'Courier New', Courier, monospace; 
+                font-size: 24px; 
+                font-weight: bold; 
+                letter-spacing: 5px; 
+                background: repeating-linear-gradient(45deg, #f0f0f0, #e0e0e0 10px);
+                user-select: none;
+                padding: 5px 15px;
+                color: #2c3e50;
+                text-decoration: line-through;">
+      {{ generatedCaptcha }}
+    </div>
+    
+    <div class="text-end">
+      <span class="badge" [ngClass]="captchaTimer < 10 ? 'bg-danger' : 'bg-secondary'">
+        <i class="ti ti-clock"></i> {{ captchaTimer }}s
+      </span>
+      <button type="button" class="btn btn-sm btn-ghost-primary ms-2" (click)="refreshCaptcha()">
+        <i class="ti ti-refresh"></i>
+      </button>
+    </div>
+  </div>
+
+  <input 
+    type="text" 
+    class="form-control" 
+    formControlName="captchaInput" 
+    [ngClass]="{ 'is-invalid': submitted && f['captchaInput'].errors }"
+    placeholder="Enter the code shown above"
+  />
+  <div *ngIf="submitted && f['captchaInput'].errors" class="invalid-feedback">
+    Verification code is required
+  </div>
+</div>
+            <!-- Submit -->
+            <div class='d-grid mt-4'>
+              <button [disabled]='loading' [ngClass]="loading ? 'btn-secondary' : 'btn-primary'" class='btn' type='submit'>
+                <span *ngIf='!loading'>Login</span>
+                <span *ngIf='loading' class='spinner-border spinner-border-sm'></span>
+                <span *ngIf='loading'> Logging in...</span>
+              </button>
+            </div>
+
+            <!-- Error -->
+            <div *ngIf='error' class='alert alert-danger mt-3' role='alert'>{{error}}</div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

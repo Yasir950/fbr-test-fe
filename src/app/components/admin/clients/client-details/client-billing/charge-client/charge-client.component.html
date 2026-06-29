@@ -1,0 +1,84 @@
+<div class='container fixed-height'>
+  <!-- MODAL HEADER -->
+  <div class='row wallet-modal-header-container position-relative'>
+    <div class='col-12'>
+      <span (click)='activeModal.dismiss()' class='wallet-modal-closer bg-danger'>
+        <img alt='Close Modal Icon' src='assets/images/close.png'>
+      </span>
+      <h4 class='text-center font-size-18 fw-bold extra-letter-spacing mb-0 pb-2 pt-3 text-uppercase'>
+        Generate Bill<br>
+        <span class='badge bg-light-success text-dark'>{{ client.sellerBusinessName }}</span>
+      </h4>
+    </div>
+  </div>
+
+  <!-- MODAL CONTENT -->
+  <div [class.form-disabled]='isLoading' class='row wallet-modal-content-container p-3'>
+    <div class='col-12'>
+      <!-- Billing Summary -->
+      <div class='summary-box alert d-flex justify-content-around text-center mb-4'>
+        <div>
+          <h6 class='mb-1 text-muted'>BILLING MONTH</h6>
+          <span class='fs-5 fw-bold'>{{ bill.month | date:'MMM, yyyy' }}</span>
+        </div>
+        <div>
+          <h6 class='mb-1 text-muted'>INVOICES SUBMITTED</h6>
+          <span class='fs-5 fw-bold'>{{ bill.invoicesSubmitted }}</span>
+        </div>
+      </div>
+
+      <!-- Billing Form -->
+      <form (ngSubmit)='onSubmit()' [formGroup]='chargeForm'>
+        <div class='row'>
+          <div class='col-md-4 mb-3'>
+            <label class='form-label' for='costPerInvoice'>Cost / Invoice</label>
+            <input [ngClass]="{ 'is-invalid': f.costPerInvoice.touched && f.costPerInvoice.errors }" class='form-control' formControlName='costPerInvoice' id='costPerInvoice' mask='separator.0' thousandSeparator=',' type='number'>
+            <div *ngIf='f.costPerInvoice.touched && f.costPerInvoice.errors' class='invalid-feedback'>Cost per invoice is required.</div>
+          </div>
+          <div class='col-md-4 mb-3'>
+            <label class='form-label' for='costPerInvoice'>Total Invoices</label>
+            <input [ngClass]="{ 'is-invalid': f.totalInvoices.touched && f.totalInvoices.errors }" class='form-control' formControlName='totalInvoices' id='totalInvoices' mask='separator.0' thousandSeparator=',' type='number'>
+            <div *ngIf='f.totalInvoices.touched && f.totalInvoices.errors' class='invalid-feedback'>Total invoices number is required.</div>
+          </div>
+          <div class='col-md-4 mb-3'>
+            <label class='form-label' for='amountCalculated'>Calculated Amount (PKR)</label>
+            <input class='form-control' formControlName='amount' id='amountCalculated' mask='separator.0' readonly thousandSeparator=',' type='text'>
+          </div>
+        </div>
+        <hr>
+        <!-- Other Expenses Form Array -->
+        <div formArrayName='otherExpenses'>
+          <div *ngFor='let expense of otherExpenses.controls; let i = index' [formGroupName]='i' class='expense-row row align-items-center mb-3'>
+            <div class='col-md-4'>
+              <label [for]="'expenseAmount' + i" class='form-label'>Amount</label>
+              <input [id]="'expenseAmount' + i" class='form-control' formControlName='expenseAmount' mask='separator.0' thousandSeparator=',' type='number'>
+            </div>
+            <div class='col-md-7'>
+              <label [for]="'expenseDescription' + i" class='form-label'>Description</label>
+              <textarea [id]="'expenseDescription' + i" class='form-control' formControlName='expenseDescription' rows='1'></textarea>
+            </div>
+            <div class='col-md-1 align-self-end text-end'>
+              <button (click)='removeExpense(i)' class='btn btn-sm btn-outline-danger' type='button'><i class='ti ti-trash'></i></button>
+            </div>
+          </div>
+        </div>
+
+        <button (click)='addExpense()' class='btn btn-sm btn-outline-secondary' type='button'>
+          <i class='ti ti-plus me-1'></i> Add Other Expense
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL FOOTER -->
+  <div class='modal-footer justify-content-between'>
+    <div class='total-amount-display'>
+      <span class='text-muted'>TOTAL CHARGEABLE:</span>
+      <span class='fw-bold fs-4 ms-2'>{{ totalChargeableAmount | currency:'PKR ' }}</span>
+    </div>
+    <button (click)='onSubmit()' [disabled]='isLoading || chargeForm.invalid' class='btn btn-primary' type='button'>
+      <span *ngIf='!isLoading'><i class='ti ti-file-invoice me-1'></i> Generate Invoice</span>
+      <span *ngIf='isLoading'><span class='spinner-border spinner-border-sm me-2'></span> Generating...</span>
+    </button>
+  </div>
+</div>

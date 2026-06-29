@@ -1,0 +1,22 @@
+// History Avatar Styling
+.history-avatar {
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  font-size: 1.2rem; // Makes the icon slightly larger
+}
+
+// Styling for comments in the history feed
+.history-comment {
+  background-color: #f8f9fa; // Bootstrap's light gray
+  border-left: 3px solid #dee2e6; // Bootstrap's border color
+  font-size: 0.875em;
+  color: #6c757d; // Bootstrap's muted text color
+}
+
+// Ensure accordion buttons are aligned nicely
+.accordion-button {
+  &:not(.collapsed) {
+    box-shadow: none; // Removes the default blue box-shadow on active accordion
+  }
+}

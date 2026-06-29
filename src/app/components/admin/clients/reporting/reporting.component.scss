@@ -1,0 +1,169 @@
+/* Hide print block during dashboard look views */
+#printSection {
+  display: none;
+}
+
+@media print {
+  /* CRITICAL: Force complete removal of standard theme wrappers, 
+     navbars, headers, and sidebars from page layout stream */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  /* Target all common structural shell component selectors to fully suppress application headers */
+  header, nav, footer, .app-header, .topbar, .sidebar, .navbar, .non-printable {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Expose target rendering report container */
+  #printSection, #printSection * {
+    visibility: visible !important;
+  }
+
+  #printSection {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111111;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 18mm 15mm 18mm 15mm;
+  }
+
+  /* Letterhead Top Section Style */
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #1b4d3e;
+    padding-bottom: 12px;
+    margin-bottom: 30px;
+  }
+  .company-name {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #1b4d3e;
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .company-meta {
+    font-size: 10pt;
+    color: #444444;
+    margin: 0;
+  }
+  .report-meta {
+    text-align: right;
+  }
+  .report-title {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #222222;
+    margin: 0 0 6px 0;
+  }
+  .report-date-range {
+    font-size: 9.5pt;
+    color: #555555;
+    margin: 0;
+  }
+
+  /* Space management container for dynamic sequential tables */
+  .print-table-wrapper {
+    margin-bottom: 30px !important; /* Forces spacing among each table section */
+    page-break-inside: avoid !important; /* Prevents splitting a single table in half */
+  }
+
+  /* Accounting Style Data Tables */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+  }
+  .print-table th, .print-table td {
+    border: 1px solid #777777 !important;
+    padding: 7px 10px;
+    vertical-align: middle;
+    text-align: left;
+  }
+  
+  /* Bold Table Group Identifier Headings */
+  .print-group-header th {
+    background-color: #f0f5f1 !important; /* Professional soft green header look */
+    color: #1b4d3e !important;
+    font-size: 10.5pt !important;
+    font-weight: bold !important;
+    border-left: 4px solid #1b4d3e !important;
+  }
+  .print-badge-label {
+    float: right;
+    font-weight: normal;
+    font-size: 9pt;
+    color: #555555;
+    font-family: monospace;
+  }
+  .print-column-headers th {
+    background-color: #fafafa !important;
+    font-size: 8.5pt;
+    color: #333333;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  /* Financial Sum Total Highlights */
+  .print-sum-row td {
+    background-color: #f4f7fc !important;
+    font-weight: bold !important;
+    border-top: 1.5px solid #111111 !important;
+    border-bottom: 2.5px double #111111 !important; /* Double underline audit line format */
+  }
+
+  .text-right {
+    text-align: right !important;
+  }
+  .font-numeric {
+    font-family: Consolas, Monaco, monospace;
+  }
+
+  /* Report Document Verification Signatures Footer */
+  .print-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 50px;
+    page-break-inside: avoid;
+  }
+  .footer-stamp {
+    font-size: 8pt;
+    color: #666666;
+    line-height: 1.5;
+  }
+  .system-note {
+    font-style: italic;
+    color: #999999;
+  }
+  .footer-sign {
+    text-align: center;
+    width: 220px;
+  }
+  .signature-line {
+    border-bottom: 1px dashed #555555;
+    margin-bottom: 6px;
+    height: 40px;
+  }
+  .footer-sign p {
+    font-size: 8.5pt;
+    font-weight: bold;
+    margin: 0;
+  }
+}

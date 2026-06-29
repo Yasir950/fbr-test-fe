@@ -1,0 +1,174 @@
+<div class='container mt-0'>
+  <ng-container *ngIf='loading'>
+    <app-spinner></app-spinner>
+    <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+    <div class='d-flex justify-content-center align-items-center'>
+      <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+        <span class='visually-hidden'>Loading...</span>
+      </div>
+    </div>
+  </ng-container>
+</div>
+<ng-container *ngIf='!loading'>
+  <!-- Success State: Display Client Details Card -->
+  <div class='card shadow-sm'>
+    <div class='card-header bg-light-success'>
+      <h4 class='mb-0 pt-3'>
+        <i class='ti ti-building me-2 text-success'></i>
+        {{ client.sellerBusinessName }}
+        <span class='py-2 d-inline-block font-monospace text-success px-1 position-absolute' style='font-size: 18px; top:0; left: 5px;'>
+           <button (click)="goBack()" class="btn btn-success btn-sm rounded border me-1">
+            <i class="ti ti-arrow-left" style="font-size: 1rem;">Back</i>
+          </button><span class='fw-bolder'>NTN/CNIC:</span> {{ client.sellerNTNCNIC }}</span>
+        <button (click)='navigateToInvoices(client.id)' class='btn btn-primary mx-4'><i class='ti ti-file-invoice'></i> MANAGE INVOICES</button>
+        <button (click)='openAssignManagersView()' *ngIf='aclLevel > 3' class='btn btn-warning'><i class='ti ti-users'></i> ASSIGN MANAGERS</button>
+        <button (click)='openAddManagersView()' *ngIf='aclLevel > 3' class='btn btn-info mx-4'><i class='ti ti-user-plus'></i> CLIENT MANAGERS</button>
+        <button (click)='openBillingsView()' *ngIf='aclLevel > 3' class='btn btn-success'><i class='ti ti-currency-dollar'></i> BILLING</button>
+      </h4>
+    </div>
+    <div class='card-body'>
+      <ng-container *ngIf='client && aclLevel > 3'>
+        <h5 class='card-title mb-3 px-2 text-success fw-bolder'>Client Details:</h5>
+        <hr>
+        <div class='row px-2'>
+          <!-- Sandbox Token -->
+          <div class='col-sm-6'>
+            <div class='mb-3'>
+              <label class='form-label fw-bold'>Sandbox Token</label>
+              <div class='input-group token-group'>
+                <input [(ngModel)]='client.sandboxToken' class='form-control font-monospace' type='text'>
+                <button
+                  (click)="updateField('sandboxToken', client.sandboxToken)"
+                  [disabled]='isLoading.sandboxToken'
+                  [ngClass]="isLoading.sandboxToken ? 'btn-secondary' : 'btn-success'"
+                  class='btn'>
+                  <ng-container *ngIf='!isLoading.sandboxToken; else sandboxLoader'>
+                    <i class='ti ti-arrow-bar-up'></i>
+                    <span class='ms-1'>Update</span>
+                  </ng-container>
+                  <ng-template #sandboxLoader>
+                    <span class='spinner-border spinner-border-sm'></span>
+                  </ng-template>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Production Token -->
+          <div class='col-sm-6'>
+            <label class='form-label fw-bold'>Production Token</label>
+            <div class='input-group token-group'>
+              <input [(ngModel)]='client.productionToken' class='form-control font-monospace' type='text'>
+              <button
+                (click)="updateField('productionToken', client.productionToken)"
+                [disabled]='isLoading.productionToken'
+                [ngClass]="isLoading.productionToken ? 'btn-secondary' : 'btn-success'"
+                class='btn'>
+                <ng-container *ngIf='!isLoading.productionToken; else productionLoader'>
+                  <i class='ti ti-arrow-bar-up'></i>
+                  <span class='ms-1'>Update</span>
+                </ng-container>
+                <ng-template #productionLoader>
+                  <span class='spinner-border spinner-border-sm'></span>
+                </ng-template>
+              </button>
+            </div>
+          </div>
+          <!-- Seller name -->
+          <div class='col-sm-4'>
+            <div class='mb-3'>
+              <label class='form-label fw-bold'>Business Name</label>
+              <div class='input-group token-group'>
+                <input [(ngModel)]='client.sellerBusinessName' class='form-control font-monospace' type='text'>
+                <button
+                  (click)="updateField('sellerBusinessName', client.sellerBusinessName)"
+                  [disabled]='isLoading.sellerName'
+                  [ngClass]="isLoading.sellerName ? 'btn-secondary' : 'btn-success'"
+                  class='btn'>
+                  <ng-container *ngIf='!isLoading.sellerName; else nameLoader'>
+                    <i class='ti ti-arrow-bar-up'></i>
+                    <span class='ms-1'>Update</span>
+                  </ng-container>
+                  <ng-template #nameLoader>
+                    <span class='spinner-border spinner-border-sm'></span>
+                  </ng-template>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Province -->
+          <div class='col-sm-4'>
+            <div class='mb-3'>
+              <label class='form-label fw-bold'>Province</label>
+              <div class='input-group token-group'>
+                <input (focus)="focusSearchProvinces$.next('')" [(ngModel)]='client.sellerProvince' [focusFirst]='false' [ngbTypeahead]='searchProvinces' class='form-control font-monospace' type='text'>
+                <button
+                  (click)="updateField('sellerProvince', client.sellerProvince)"
+                  [disabled]='isLoading.sellerProvince'
+                  [ngClass]="isLoading.sellerProvince ? 'btn-secondary' : 'btn-success'"
+                  class='btn'>
+                  <ng-container *ngIf='!isLoading.sellerProvince; else provinceLoader'>
+                    <i class='ti ti-arrow-bar-up'></i>
+                    <span class='ms-1'>Update</span>
+                  </ng-container>
+                  <ng-template #provinceLoader>
+                    <span class='spinner-border spinner-border-sm'></span>
+                  </ng-template>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Address -->
+          <div class='col-sm-4'>
+            <div class='mb-3'>
+              <label class='form-label fw-bold'>Address</label>
+              <div class='input-group token-group'>
+                <textarea [(ngModel)]='client.sellerAddress' class='form-control font-monospace'></textarea>
+                <button
+                  (click)="updateField('sellerAddress', client.sellerAddress)"
+                  [disabled]='isLoading.sellerAddress'
+                  [ngClass]="isLoading.sellerAddress ? 'btn-secondary' : 'btn-success'"
+                  class='btn'>
+                  <ng-container *ngIf='!isLoading.sellerAddress; else addressLoader'>
+                    <i class='ti ti-arrow-bar-up'></i>
+                    <span class='ms-1'>Update</span>
+                  </ng-container>
+                  <ng-template #addressLoader>
+                    <span class='spinner-border spinner-border-sm'></span>
+                  </ng-template>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <h5 class='card-title mb-3 px-2 text-success fw-bolder'>Current Invoices Statistics:</h5>
+      <hr>
+      <div class='row'>
+        <div *ngFor='let task of currentStats' class='col-md-6 col-xl-3'>
+          <div class='card {{task.border}} position-relative'>
+            <div class='card-body'>
+              <h4 class='mb-2 f-w-400 {{task.color}}'>{{ task.title }}</h4>
+              <h3 class='mb-3 {{task.color}}'>{{ task.amount }}</h3>
+              <p class='mb-0 text-sm'>
+                {{task.subText}}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h5 class='card-title mb-3 px-2 text-success fw-bolder'>Invoices Submission Statistics:</h5>
+      <hr>
+      <div class='row'>
+        <div *ngFor='let task of submissionStats' class='col-md-6 col-xl-3'>
+          <div class='card {{task.border}} position-relative'>
+            <div class='card-body'>
+              <h4 class='mb-2 f-w-400 {{task.color}}'>{{ task.title }}</h4>
+              <h3 class='mb-3 {{task.color}}'>{{ task.amount }}</h3>
+              <p class='mb-0 text-sm'>{{task.subText}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

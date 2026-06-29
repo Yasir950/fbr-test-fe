@@ -1,0 +1,67 @@
+<div *ngIf='loading' class='container mt-0'>
+  <app-spinner></app-spinner>
+  <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</div>
+
+<div *ngIf='!loading' class='row'>
+  <h4 class='py-3'>Current Invoices Statistics</h4>
+  <div *ngFor='let task of currentStats' class='col-md-6 col-xl-3'>
+    <div class='card {{task.border}} position-relative'>
+      <div class='card-body'>
+        <h4 class='mb-2 f-w-400 {{task.color}}'>{{ task.title }}</h4>
+        <h3 class='mb-3 {{task.color}}'>{{ task.amount }}</h3>
+        <p class='mb-0 text-sm'>
+          {{task.subText}}
+        </p>
+      </div>
+    </div>
+  </div>
+  <h4 class='py-3'>Invoices Submission Statistics</h4>
+  <div *ngFor='let task of submissionStats' class='col-md-6 col-xl-3'>
+    <div class='card {{task.border}} position-relative'>
+      <div class='card-body'>
+        <h4 class='mb-2 f-w-400 {{task.color}}'>{{ task.title }}</h4>
+        <h3 class='mb-3 {{task.color}}'>{{ task.amount }}</h3>
+        <p class='mb-0 text-sm'>{{task.subText}}</p>
+      </div>
+    </div>
+  </div>
+  <div class='col-md-12 col-xl-12 d-none'>
+    <h4 class='mb-3 pt-3 pb-2'>Top 10 Clients</h4>
+    <div class='card tbl-card'>
+      <div class='card-body'>
+        <div class='table-responsive'>
+          <table class='table table-hover mb-0'>
+            <thead>
+            <tr>
+              <th>NTN</th>
+              <th>NAME</th>
+              <th class='text-center text-success'>Total Submitted</th>
+              <th class='text-center text-primary'>Total Pending</th>
+              <th class='text-center text-info'>Initial Review</th>
+              <th class='text-center text-warning'>Final Review</th>
+              <th class='text-center text-danger'>Rejected</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor='let client of tables'>
+              <td>{{ client.id }}</td>
+              <td>{{ client.name }}</td>
+              <td class='text-center text-success fw-bold'>{{ client.submitted }}</td>
+              <td class='text-center text-primary fw-bold'>{{ client.totalPending }}</td>
+              <td class='text-center text-info fw-bold'>{{ client.initialReview }}</td>
+              <td class='text-center text-warning fw-bold'>{{ client.finalReview }}</td>
+              <td class='text-center text-danger fw-bold'>{{ client.rejected }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

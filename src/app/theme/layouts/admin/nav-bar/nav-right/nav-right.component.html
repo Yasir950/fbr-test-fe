@@ -1,0 +1,24 @@
+<!-- [Mobile Media Block end] -->
+<ul class='list-unstyled'>
+  <li class='dropdown pc-h-item header-user-profile' ngbDropdown>
+    <a class='pc-head-link dropdown-toggle arrow-none me-0 cursor-pointer' ngbDropdownToggle>
+      <img alt='user-image' class='user-avtar' src='assets/images/logo-icon.svg' />
+      <span>{{user.username}}</span>
+    </a>
+    <div class='dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown' ngbDropdownMenu>
+      <div class='dropdown-header'>
+        <div class='d-flex mb-1'>
+          <div class='flex-shrink-0'>
+            <img alt='user-image' class='user-avtar wid-35' src='assets/images/logo-icon.svg' />
+          </div>
+          <div class='flex-grow-1 ms-3'>
+            <h6 class='mb-1'>{{user.username}}</h6>
+            <span>{{user.adminType.toString().replace("_", "").toUpperCase()}}</span>
+          </div>
+          <span (click)='logout()' class='pc-head-link bg-transparent cursor-pointer'><i class='ti ti-power text-danger'></i></span>
+        </div>
+      </div>
+    </div>
+  </li>
+</ul>
+<!-- [Mobile Media Block end] -->

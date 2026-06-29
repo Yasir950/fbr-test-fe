@@ -1,0 +1,300 @@
+<div *ngIf='client' class='card non-printable'>
+  <div class='card-header bg-light-success position-relative'>
+    <div class='d-flex justify-content-between align-items-center'>
+      <h4 class='mb-0 mt-3'>
+        <i class='ti ti-building me-2 text-success'></i>
+        {{ client.sellerBusinessName }} <br>
+        <span class='py-2 d-inline-block font-monospace text-success px-1 position-absolute' style='font-size: 16px; top:0; left: 5px;'>
+          <button (click)="goBack()" class="btn btn-success btn-sm rounded border me-1">
+            <i class="ti ti-arrow-left" style="font-size: 1rem;">Back</i>
+          </button>
+          <span class='fw-bolder'>NTN/CNIC:</span> {{client.sellerNTNCNIC}}
+        </span>
+      </h4>
+    </div>
+
+    <div class="row mt-3 border-top pt-3 g-2 align-items-end justify-content-center">
+      <div class='btn-group' role='group'>
+        <button (click)="changeReportFilter('all')"
+                [class.active]="activeFilter === 'all'"
+                class='btn btn-outline-success mx-1'>
+          Customer Wise Sales Summary Reports
+        </button>
+        <button (click)="changeReportFilter('initial_review')"
+                [class.active]="activeFilter === 'initial_review'"
+                class='btn btn-outline-warning mx-1'>
+          Sales Tax Charged (Output Tax) Summary Report
+        </button>
+        <button (click)="changeReportFilter('final_review')"
+                [class.active]="activeFilter === 'final_review'"
+                class='btn btn-outline-info mx-1'>
+          Sales Tax Withheld Summary Report
+        </button>
+        <button (click)="changeReportFilter('rejected')"
+                [class.active]="activeFilter === 'rejected'"
+                class='btn btn-outline-danger mx-1'>
+          Item/HS Code Wise Summary Report
+        </button>
+        <button (click)="changeReportFilter('submitted')"
+                [class.active]="activeFilter === 'submitted'"
+                class='btn btn-outline-success mx-1'>
+          Customer Wise Invoice Ledger
+        </button>
+      </div>
+
+      <div class="col-md-2">
+        <button (click)="openCustomerModal()" class="btn btn-sm btn-success w-100 shadow-sm">
+          <i class="ti" [ngClass]="activeFilter === 'rejected' ? 'ti-package' : 'ti-users'"></i>
+          <span class="ms-1">
+            <ng-container *ngIf="selectedCustomers.length > 0">
+              {{ selectedCustomers.length }} {{ activeFilter === 'rejected' ? 'Items' : 'Selected' }}
+            </ng-container>
+            <ng-container *ngIf="selectedCustomers.length === 0">
+              {{ activeFilter === 'rejected' ? 'Select HS Codes' : 'Select Customers' }}
+            </ng-container>
+          </span>
+        </button>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label small fw-bold text-muted uppercase">From Date</label>
+        <input type="date" [(ngModel)]="fromDate" class="form-control form-control-sm">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label small fw-bold text-muted uppercase">To Date</label>
+        <input type="date" [(ngModel)]="toDate" class="form-control form-control-sm">
+      </div>
+
+      <div class="col-md-2">
+        <button (click)="clearDateFilters(); reportGroups = []; ledgerData = []"
+                class="btn btn-sm btn-outline-secondary w-100"
+                [disabled]="!fromDate && !toDate">
+          <i class="ti ti-refresh"></i> Reset
+        </button>
+      </div>
+
+      <div class="col-md-2">
+        <button (click)="generateReport()"
+                class="btn btn-sm btn-primary w-100 shadow-sm"
+                [disabled]="selectedCustomers.length === 0 || !fromDate || !toDate || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!loading" class="ti ti-report-analytics"></i>
+          {{ loading ? 'Loading...' : 'Fetch Report' }}
+        </button>
+      </div>
+
+      <div class="col-md-2">
+        <button (click)="downloadReportPDF()"
+                class="btn btn-sm btn-info text-white w-100 shadow-sm"
+                [disabled]="loading || (reportGroups.length === 0 && ledgerData.length === 0)">
+          <i class="ti ti-download"></i> Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class='card-body p-0'>
+    <div class="table-responsive">
+      <table class='table table-hover table-bordered table-striped align-middle mb-0'>
+        <tbody>
+          <ng-container *ngIf="activeFilter !== 'submitted' && reportGroups.length > 0">
+            <ng-container *ngFor="let group of reportGroups">
+              <tr class="table-success">
+                <td [attr.colspan]="dataKeys.length > 1 ? dataKeys.length : 2" class="fw-bold py-2 px-3">
+                  <i class="ti me-2" [ngClass]="activeFilter === 'rejected' ? 'ti-package' : 'ti-user'"></i>
+                  {{ group.groupLabel }}
+                  <span class="badge bg-white text-success border ms-2 text-wrap text-start">{{ group.groupBadge }}</span>
+                </td>
+              </tr>
+              <tr class="table-light text-uppercase small fw-bold" *ngIf="dataKeys.length > 1">
+                <th *ngFor="let key of dataKeys" class="ps-3 text-muted">
+                  {{ formatHeader(key) }}
+                </th>
+              </tr>
+              <ng-container *ngIf="dataKeys.length === 1">
+                <tr>
+                  <td class="ps-5 text-muted fw-semibold">{{ formatHeader(dataKeys[0]) }}</td>
+                  <td class="text-end pe-4 fw-bold">{{ group.data[dataKeys[0]] | number:'1.2-2' }}</td>
+                </tr>
+              </ng-container>
+              <ng-container *ngIf="dataKeys.length > 1">
+                <tr>
+                  <td *ngFor="let key of dataKeys" class="text-end pe-3 fw-bold">
+                    {{ group.data[key] | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="activeFilter === 'submitted' && ledgerData.length > 0">
+            <ng-container *ngFor="let customer of ledgerData">
+              <tr class="table-success">
+                <td [attr.colspan]="ledgerHeaders.length" class="fw-bold py-2 px-3">
+                  <i class="ti ti-user me-2"></i>{{ customer.groupLabel }}
+                  <span class="badge bg-white text-success border ms-2 font-monospace">{{ customer.groupBadge }}</span>
+                </td>
+              </tr>
+              <tr class="table-light text-uppercase small fw-bold" *ngIf="ledgerHeaders.length > 0">
+                <th *ngFor="let h of ledgerHeaders" class="ps-3 text-muted">
+                  {{ formatHeader(h) }}
+                </th>
+              </tr>
+              <tr *ngFor="let row of customer.rows" [ngClass]="{'bg-light-primary fw-bold text-primary': row['isSumRow']}">
+                <td *ngFor="let h of ledgerHeaders"
+                    [class.text-end]="h !== 'invoice_date'"
+                    [class.ps-4]="h === 'invoice_date'">
+                  <ng-container *ngIf="h === 'invoice_date'">
+                    <span *ngIf="row['isSumRow']" class="text-uppercase">Total Sum</span>
+                    <span *ngIf="!row['isSumRow']">{{ row[h] }}</span>
+                  </ng-container>
+                  <ng-container *ngIf="h !== 'invoice_date'">
+                    {{ row[h] | number:'1.2-2' }}
+                  </ng-container>
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+
+          <tr *ngIf="!loading && reportGroups.length === 0 && ledgerData.length === 0">
+            <td colspan="6" class="text-center py-5">
+              <div class="text-muted">
+                <i class="ti ti-database-off d-block mb-2" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold">No Report Data Available</h5>
+                <p class="small mb-0">Select your
+                  <b>{{ activeFilter === 'rejected' ? 'HS Codes' : 'Customers' }}</b>
+                  and <b>Date Range</b>, then click <b>Fetch Report</b>.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="loading">
+            <td colspan="6" class="text-center py-5">
+              <div class="spinner-grow text-success" role="status"></div>
+              <div class="mt-2 fw-bold text-success">Processing Report Matrix...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal d-block animate-fade-in"
+       *ngIf="showCustomerModal"
+       style="background: rgba(0,0,0,0.6); z-index: 1060;">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="height: 90vh;">
+      <div class="modal-content border-0 shadow-lg" style="height: 100%;">
+        <div class="modal-header border-bottom flex-column align-items-center py-3">
+          <button type="button" class="btn-close position-absolute end-0 me-3 mt-1"
+                  (click)="showCustomerModal = false"></button>
+          <h5 class="modal-title fw-bolder text-uppercase">
+            {{ activeFilter === 'rejected' ? 'Select HS Codes for Report' : 'Select Customers for Report' }}
+          </h5>
+          <div class="badge bg-light-primary text-primary px-3 py-2 mt-1">
+            <i class="ti ti-building-store me-1"></i> {{ client?.sellerBusinessName }}
+          </div>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="position-relative mb-4">
+            <label class="form-label small fw-bold text-primary text-uppercase">
+              <i class="ti ti-search me-1"></i>
+              {{ activeFilter === 'rejected' ? 'Click or Search HS Codes' : 'Click or Search Customers' }}
+            </label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="ti ti-search text-muted"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 ps-0"
+                     [(ngModel)]="searchQuery"
+                     (input)="onCustomerSearch()"
+                     (focus)="onCustomerSearch()"
+                     [placeholder]="activeFilter === 'rejected' ? 'Type HS Code or Description...' : 'Type Name or NTN...'">
+            </div>
+
+            <div class="list-group position-absolute w-100 shadow-lg mt-1 border-0"
+                 style="z-index: 1100; max-height: 400px; overflow-y: auto;"
+                 *ngIf="filteredCustomerSearch.length > 0">
+              <button type="button"
+                      class="list-group-item list-group-item-success fw-bold py-2 text-center"
+                      (click)="addAllFiltered()">
+                <i class="ti ti-checks me-1"></i> Add All Visible ({{ filteredCustomerSearch.length }})
+              </button>
+              <div *ngFor="let c of filteredCustomerSearch"
+                   (click)="toggleCustomerSelection(c)"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 cursor-pointer">
+                <div class="d-flex align-items-center">
+                  <div class="form-check me-3">
+                    <input class="form-check-input pointer-events-none"
+                           type="checkbox"
+                           [checked]="isCustomerSelected(c)">
+                  </div>
+                  <div *ngIf="activeFilter === 'rejected'">
+                    <div class="fw-bold text-primary font-monospace">{{ c.ntn }}</div>
+                    <small class="text-muted d-block text-truncate" style="max-width: 500px;">{{ c.name }}</small>
+                  </div>
+                  <div *ngIf="activeFilter !== 'rejected'">
+                    <div class="fw-bold text-dark">{{ c.name }}</div>
+                    <small class="text-muted font-monospace">{{ c.ntn }}</small>
+                  </div>
+                </div>
+                <i class="ti" [ngClass]="isCustomerSelected(c) ? 'ti-check text-success' : 'ti-plus text-muted'"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0 text-muted">Selected Items ({{ selectedCustomers.length }})</h6>
+            <button *ngIf="selectedCustomers.length > 0"
+                    class="btn btn-link btn-sm text-danger text-decoration-none p-0"
+                    (click)="selectedCustomers = []">
+              Remove All Selected Items
+            </button>
+          </div>
+
+          <div class="table-responsive border rounded bg-light-faded" style="max-height: 400px;">
+            <table class="table table-hover align-middle mb-0">
+              <slot name="thead">
+                <thead class="table-light sticky-top">
+                  <tr class="small text-muted text-uppercase">
+                    <th class="ps-3">{{ activeFilter === 'rejected' ? 'HS Code' : 'Customer Name' }}</th>
+                    <th>{{ activeFilter === 'rejected' ? 'Description' : 'NTN / CNIC' }}</th>
+                    <th class="text-end pe-3">Action</th>
+                  </tr>
+                </thead>
+              </slot>
+              <tbody>
+                <tr *ngFor="let sc of selectedCustomers; let i = index" class="bg-white">
+                  <ng-container *ngIf="activeFilter === 'rejected'">
+                    <td class="ps-3 fw-medium small font-monospace">{{ sc.ntn }}</td>
+                    <td class="small text-muted text-wrap" style="max-width: 400px;">{{ sc.name }}</td>
+                  </ng-container>
+                  <ng-container *ngIf="activeFilter !== 'rejected'">
+                    <td class="ps-3 fw-medium small text-wrap" style="max-width: 350px;">{{ sc.name }}</td>
+                    <td class="small font-monospace text-muted">{{ sc.ntn }}</td>
+                  </ng-container>
+                  <td class="text-end pe-3">
+                    <button class="btn btn-sm text-danger" (click)="removeCustomer(i)">
+                      <i class="ti ti-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top bg-light-faded py-3">
+          <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" (click)="showCustomerModal = false">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-success px-4 shadow-sm fw-bold" (click)="showCustomerModal = false">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

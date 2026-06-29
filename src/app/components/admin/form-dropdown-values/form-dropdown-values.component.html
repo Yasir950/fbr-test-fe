@@ -1,0 +1,44 @@
+<div class='card'>
+  <div class='card-body'>
+    <!-- Category Selection Toolbar -->
+    <div class='category-toolbar mb-4'>
+      <div class='btn-group flex-wrap' role='group'>
+        <button (click)='selectCategory(category.key)' *ngFor='let category of categories' [ngClass]="activeKey === category.key ? 'btn-primary' : 'btn-outline-primary'" class='btn m-1' type='button'>
+          {{ category.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Search and Display Area -->
+    <div *ngIf='activeKey'>
+      <!-- Search Input -->
+      <div class='mb-3'>
+        <div class='input-group'>
+          <span class='input-group-text'><i class='ti ti-search'></i></span>
+          <input (input)='filterData()' [(ngModel)]='searchText' class='form-control' placeholder='Search in {{ labelMap[activeKey] }}...' type='text'>
+        </div>
+      </div>
+
+      <!-- Data Display Container -->
+      <div class='data-container p-3 rounded'>
+        <div *ngIf='displayData.length > 0; else noResults' class='d-flex flex-wrap gap-2'>
+          <span *ngFor='let item of displayData' class='data-item'>
+            {{ item }}
+          </span>
+        </div>
+
+        <!-- Template for when no results are found -->
+        <ng-template #noResults>
+          <div class='alert alert-warning text-center'>
+            No values found matching your search.
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Initial state message before any category is selected -->
+    <div *ngIf='!activeKey' class='alert alert-info text-center'>
+      Please select a category above to view its values.
+    </div>
+  </div>
+</div>

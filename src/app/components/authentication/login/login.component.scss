@@ -1,0 +1,36 @@
+.password-toggle {
+  position: absolute;
+  top: 38px;
+  right: 12px;
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 18px;
+}
+.captcha-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #1a1a1a;
+  text-decoration: line-through;
+  transform: rotate(-2deg); /* Subtle tilt for security look */
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 2;
+}
+
+.captcha-display {
+  border: 1px solid #dee2e6;
+  background-image: radial-gradient(#ced4da 0.5px, transparent 0.5px);
+  background-size: 5px 5px; /* Dot pattern background */
+}
+
+/* Optional: rotate the refresh icon when clicked */
+.ti-refresh:active {
+  transform: rotate(180deg);
+  transition: 0.3s;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

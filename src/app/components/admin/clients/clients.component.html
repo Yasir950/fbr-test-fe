@@ -1,0 +1,68 @@
+<div *ngIf='loading' class='container mt-0'>
+  <app-spinner></app-spinner>
+  <h4 class='text-center text-primary my-3'>- LOADING -</h4>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</div>
+<ng-container *ngIf='!loading'>
+  <div class='row mb-4'>
+    <div class='col-6'>
+      <div class='input-group'>
+        <input (ngModelChange)='filterClients($event)' [(ngModel)]='searchText' class='form-control' placeholder='Search by NTN or Name...' type='text'>
+        <span class='input-group-text'><i class='ti ti-search'></i></span>
+        <button (click)='addNewClient()' *ngIf='aclLevel > 3' class='btn btn-primary mx-2'>
+          <i class='ti ti-user-plus me-2'></i>Add New Client
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col-md-12 col-xl-12'>
+      <div class='card tbl-card'>
+        <div class='card-body'>
+          <div class='table-responsive'>
+            <table class='table table-hover mb-0'>
+              <thead>
+              <tr>
+                <th>NTN</th>
+                <th>NAME</th>
+                <th class='text-center text-primary'>Total Pending</th>
+                <th class='text-center text-info'>Initial Review</th>
+                <th class='text-center text-warning'>Final Review</th>
+                <th class='text-center text-danger'>Rejected</th>
+                <th class='text-center text-success'>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor='let client of filteredTables'>
+                <td>{{ client.sellerNTNCNIC }}</td>
+                <td>{{ client.sellerBusinessName }}</td>
+                <td class='text-center text-primary fw-bold'>{{client.pending}}</td>
+                <td class='text-center text-info fw-bold'>{{ client.initialReview }}</td>
+                <th class='text-center text-warning fw-bold'>{{ client.finalReview }}</th>
+                <td class='text-center text-danger fw-bold'>{{ client.rejected }}</td>
+                <td class='text-center'>
+                  <span (click)='navigateToProfile(client.id)' class='mx-2 btn btn-light-success'><i class='ti ti-file-info'></i> Details</span>
+                  <span (click)='navigateToInvoices(client.id)' class='mx-2 btn btn-light-primary'><i class='ti ti-license'></i> Invoices</span>
+                  <span (click)='navigateToReporting(client.id)' class='btn btn-light-warning'><i class='ti ti-license'></i> Reports</span>
+                  <span (click)='deleteClient(client.id, client.sellerBusinessName)' *ngIf='aclLevel > 3' class='btn btn-light-danger m-lg-2'><i class='ti ti-trash'></i></span>
+                </td>
+              </tr>
+              <tr *ngIf='filteredTables.length === 0'>
+                <td class='text-center' colspan='7'>
+                  <div class='alert alert-warning' role='alert'>
+                    No clients found matching your search criteria.
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

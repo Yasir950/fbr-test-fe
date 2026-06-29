@@ -1,0 +1,71 @@
+<div *ngIf='client' class='card m-auto' style='max-width: 1400px;'>
+  <button type="button" (click)="goBack()" 
+  style="width: 70px; margin: 2px;"
+            class="btn btn-primary btn-sm rounded  border me-1" >
+      <i class="ti ti-arrow-left" style="font-size: 1rem;">Back</i> 
+      </button>
+  <div class='card-header d-flex justify-content-between align-items-center'>
+    <div>
+      <h4 class='card-title mb-0'>Bulk Submission Jobs</h4>
+      <p class='mb-0 text-muted'>Client: {{ client.sellerBusinessName }}</p>
+    </div>
+    <button (click)='manualRefresh()' [disabled]='isLoading' class='btn btn-outline-primary'>
+      <i [class.fa-spin]='isLoading' class='fas fa-sync-alt me-2'></i>
+      {{ isLoading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+  <div class='card-body'>
+    <!-- Loading State -->
+    <div *ngIf='isLoading && jobs.length === 0' class='text-center p-5'>
+      <div class='spinner-border text-primary' role='status'></div>
+      <p class='mt-2'>Loading job history...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf='error' class='alert alert-danger'>{{ error }}</div>
+
+    <!-- Data Table -->
+    <div *ngIf='!isLoading || jobs.length > 0' class='table-responsive'>
+      <table class='table table-hover align-middle text-center'>
+        <thead class='table-light'>
+        <tr>
+          <th style='width: 10%;'>Job ID</th>
+          <th class='text-center' style='width: 15%;'>Status</th>
+          <th style='width: 30%;'>Progress</th>
+          <th style='width: 15%;'>Successful</th>
+          <th style='width: 15%;'>Failed</th>
+          <th class='text-end' style='width: 15%;'>Created At</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr (click)='viewJobDetail(job._id)' *ngFor='let job of jobs' class='cursor-pointer'>
+          <td class='font-monospace'><strong>{{ getShortId(job._id) }}</strong></td>
+          <td class='text-center'>
+              <span [ngClass]='getStatusBadgeClass(job.status)' class='badge fs-6'>
+                <span *ngIf="job.status === 'in_progress'" class='spinner-border spinner-border-sm me-2' role='status'></span>
+                {{ job.status.replace('_', ' ') | titlecase }}
+              </span>
+          </td>
+          <td>
+            <div class='progress-container d-flex align-items-center text-center' style='max-width: 200px; margin: auto;'>
+              <div class='progress flex-grow-1' style='height: 20px;'>
+                <div [ngClass]='getStatusBadgeClass(job.status)' [style.width.%]='(job.processed_count / job.total_invoices) * 100' class='progress-bar' role='progressbar'>
+                </div>
+              </div>
+              <span class='ms-3 fw-bold'>{{ job.processed_count }} / {{ job.total_invoices }}</span>
+            </div>
+          </td>
+          <td>{{job.successful_invoices.length}}</td>
+          <td>{{job.failed_invoices.length}}</td>
+          <td class='text-end text-muted'>{{ job.created_at | date:'short' }}</td>
+        </tr>
+        <tr *ngIf='jobs.length === 0'>
+          <td class='text-center text-muted p-4' colspan='4'>
+            No bulk submission jobs found for this client.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

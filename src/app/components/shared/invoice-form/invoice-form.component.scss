@@ -1,0 +1,26 @@
+// Disable the form during submission
+.form-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// Styling for the accordion header to accommodate the remove button
+.accordion-header {
+  position: relative;
+
+  .remove-item-btn {
+    position: absolute;
+    top: 50%;
+    right: 3rem; // Position it before the accordion arrow
+    transform: translateY(-50%);
+    z-index: 5; // Ensure it's clickable
+  }
+}
+.dropdown-menu.hs-code-typeahead {
+  max-height: 320px;
+  overflow-y: scroll;
+}
+::ng-deep .dropdown-menu.hs-code-typeahead {
+  max-height: 320px;
+  overflow-y: scroll;
+}

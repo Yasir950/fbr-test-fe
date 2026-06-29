@@ -1,0 +1,279 @@
+<div #scrollContainer [class.form-disabled]='isSubmitting' class='container-fluid'>
+  <div *ngIf='errorMessages.length > 0' class='alert alert-danger' role='alert'>
+    <ul class='mb-0'>
+      <li *ngFor='let error of errorMessages'>{{ error }}</li>
+    </ul>
+  </div>
+  <form (ngSubmit)='onSubmit()' [formGroup]='invoiceForm'>
+
+    <!-- Header Card: Core Invoice Details -->
+    <div class='card mb-4'>
+      <div class='card-header'><h4 class='mb-0 fw-bolder {{formLabelColors}}'> <button type="button" (click)="goBack()" 
+            class="btn btn-primary btn-sm rounded  border me-1" >
+      <i class="ti ti-arrow-left" style="font-size: 1rem;">Back</i> 
+      </button>Core Invoice Details <span *ngIf='sandboxTesting' class='badge bg-warning d-inline-block mx-2'>[SANDBOX TESTING FORM]</span></h4></div>
+      <div class='card-body'>
+        <div class='row'>
+          <div *ngIf='sandboxTesting' class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder {{formLabelColors}}'>Scenario ID*</label>
+            <input (focus)="focusSearchScenarios$.next('')" [class.is-invalid]="invoiceForm.get('scenarioId').touched && invoiceForm.get('scenarioId').errors" [focusFirst]='false' [ngbTypeahead]='searchScenarios' class='form-control' formControlName='scenarioId' type='text'>
+            <div *ngIf="invoiceForm.get('scenarioId').touched && invoiceForm.get('scenarioId').errors" class='invalid-feedback'>Scenario is required.</div>
+          </div>
+          <div class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder {{formLabelColors}}'>Invoice Type*</label>
+            <input (focus)="focusSearchDocumentTypes$.next('')" [class.is-invalid]="invoiceForm.get('invoiceType').touched && invoiceForm.get('invoiceType').errors" [focusFirst]='false' [ngbTypeahead]='searchDocumentTypes' class='form-control' formControlName='invoiceType' type='text'>
+            <div *ngIf="invoiceForm.get('invoiceType').touched && invoiceForm.get('invoiceType').errors" class='invalid-feedback'>Invoice Type is required.</div>
+          </div>
+          
+         <div class="col-md-3 mb-3">
+  <label class="form-label fw-bolder {{formLabelColors}}">Invoice Date*</label>
+
+  <div class="input-group">
+    <input
+      class="form-control"
+      placeholder="YYYY-MM-DD"
+      formControlName="invoiceDate"
+      ngbDatepicker
+      #d="ngbDatepicker"
+      (dateSelect)="onDateChange($event)"
+      (click)="d.toggle()"
+      [class.is-invalid]="invoiceForm.get('invoiceDate')?.touched && invoiceForm.get('invoiceDate')?.invalid"
+      readonly
+      [navigation]="'select'"
+      [showWeekNumbers]="false"
+    />
+    
+  </div>
+
+  <div *ngIf="invoiceForm.get('invoiceDate')?.touched && invoiceForm.get('invoiceDate')?.invalid"
+       class="invalid-feedback d-block">
+    A valid date in YYYY-MM-DD format is required.
+  </div>
+</div>
+ <div class='col-md-3 mb-3'>
+            <label class='form-label fw-bolder text-secondary'>Internal Invoice ID # (Optional)</label>
+<input class='form-control' formControlName='csvInvoiceId' type='text'>
+          </div>
+
+          <div *ngIf="invoiceForm.get('invoiceType')?.value?.toString().toUpperCase().includes('DEBIT NOTE')" class='col-md-3'>
+            <label class='form-label fw-bolder {{formLabelColors}}'>Invoice Reference No*</label>
+            <input class='form-control' formControlName='invoiceRefNo' type='text'>
+          </div>
+          <div *ngIf="invoiceForm.get('invoiceType')?.value?.toString().toUpperCase().includes('DEBIT NOTE')" class='col-md-3'>
+            <label class='form-label fw-bolder {{formLabelColors}}'>Reason*</label>
+            <input class='form-control' formControlName='reason' type='text'>
+          </div>
+        </div>
+        <div *ngIf="sandboxTesting && invoiceForm.get('scenarioId').value" class='row'>
+          <div class='col-12 {{formLabelColors}}'>
+            <span class='fw-bolder'>Scenario Description:</span> {{scenarioDescriptions[invoiceForm.get('scenarioId').value]}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seller and Buyer Cards -->
+    <div class='row align-items-center'>
+      <div class='col-lg-6'>
+        <div class='card mb-4'>
+          <div class='card-header'><h4 class='mb-0 fw-bolder {{formLabelColors}}'><i class='ti ti-user me-2'></i>Seller Details</h4></div>
+          <div class='card-body'>
+            <div class='row'>
+              <div class='col-6'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Seller NTN / CNIC*</label><input class='form-control' formControlName='sellerNTNCNIC' type='text'></div>
+              </div>
+              <div class='col-6'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Business Name*</label><input class='form-control' formControlName='sellerBusinessName' type='text'></div>
+              </div>
+              <div class='col-6'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Province*</label><input class='form-control' formControlName='sellerProvince' type='text'></div>
+              </div>
+              <div class='col-6'>
+                <label class='form-label fw-bolder {{formLabelColors}}'>Address*</label><textarea class='form-control' formControlName='sellerAddress' rows='3'></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='col-lg-6'>
+        <div class='card mb-4'>
+          <div class='card-header'><h4 class='mb-0 fw-bolder {{formLabelColors}}'><i class='ti ti-user-check me-2'></i>Buyer Details</h4></div>
+          <div class='card-body'>
+            <div class='row'>
+              <div class='col-6'>
+                <div class='mb-3'>
+                  <label class='form-label fw-bolder {{formLabelColors}}'>Buyer NTN / CNIC*</label>
+                  <div class='input-group'>
+                    <input [class.is-invalid]="invoiceForm.get('buyerNTNCNIC').touched && invoiceForm.get('buyerNTNCNIC').errors" class='form-control' formControlName='buyerNTNCNIC' type='text'>
+                    <button (click)='fetchBuyerData()' [disabled]='isFetchingBuyer' class='btn btn-{{sandboxTesting ? "warning" : "primary"}}' type='button'>
+                      <span *ngIf='isFetchingBuyer' class='spinner-border spinner-border-sm'></span>
+                      <i *ngIf='!isFetchingBuyer' class='ti ti-search'></i>
+                    </button>
+                  </div>
+                  <div *ngIf="invoiceForm.get('buyerNTNCNIC').touched && invoiceForm.get('buyerNTNCNIC').errors" class='invalid-feedback d-block'>Buyer NTN/CNIC is required.</div>
+                </div>
+              </div>
+              <div class='col-6 mb-3'>
+                <label class='form-label fw-bolder {{formLabelColors}}'>Registration Type*</label>
+                <input (focus)="focusSearchBuyerTypes$.next('')" [class.is-invalid]="invoiceForm.get('buyerRegistrationType').touched && invoiceForm.get('buyerRegistrationType').errors" [focusFirst]='false' [ngbTypeahead]='searchBuyerTypes' class='form-control'
+                       formControlName='buyerRegistrationType' type='text'>
+                <div *ngIf="invoiceForm.get('buyerRegistrationType').touched && invoiceForm.get('buyerRegistrationType').errors" class='invalid-feedback'>Buyer Registration Type is required.</div>
+              </div>
+              <div class='col-6'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Business Name*</label><input class='form-control' formControlName='buyerBusinessName' type='text'></div>
+              </div>
+              <div class='col-6'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Province*</label><input (focus)="focusSearchProvinces$.next('')" [focusFirst]='false' [ngbTypeahead]='searchProvinces' class='form-control' formControlName='buyerProvince' type='text'></div>
+              </div>
+              <div class='col-12'>
+                <div class='mb-3'><label class='form-label fw-bolder {{formLabelColors}}'>Address*</label><textarea class='form-control' formControlName='buyerAddress' rows='3'></textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Items Section -->
+    <div class='card mb-4'>
+      <div class='card-header'>
+        <div class='d-flex justify-content-between align-items-center'>
+          <h4 [ngClass]='formLabelColors' class='mb-0 fw-bolder'>Invoice Items</h4>
+          <button (click)='addItem()' [ngClass]="sandboxTesting ? 'btn-warning' : 'btn-primary'" class='btn' type='button'>
+            <i class='ti ti-plus me-1'></i>Add Item
+          </button>
+        </div>
+      </div>
+      <div class='card-body p-0' formArrayName='items'>
+        <div *ngFor='let item of items.controls; let i = index' [formGroupName]='i' class='item-card'>
+          <!-- Item Header (Clickable to toggle) -->
+          <div (click)='toggleItem(i)' class='item-header d-flex align-items-center p-3 cursor-pointer'>
+            <i [ngClass]="[itemCollapsedStates[i] ? 'ti-chevron-right' : 'ti-chevron-down', formLabelColors]" class='ti me-3 fw-bolder'></i>
+            <h5 [ngClass]='formLabelColors' class='mb-0 flex-grow-1 fw-bolder'>
+              ITEM #{{ i + 1 }}
+              <span *ngIf="item.get('hsCode').value" class='text-success'>| HS CODE: {{ item.get('hsCode').value }}</span>
+              <span *ngIf="item.get('totalValues').value" class='text-success'>| TOTAL VALUE: {{ item.get('totalValues').value }}</span>
+            </h5>
+            <button (click)='removeItem(i); $event.stopPropagation()' *ngIf='items.length > 1' class='btn btn-sm btn-icon btn-outline-danger' title='Remove Item' type='button'>
+              <i class='ti ti-trash'></i> REMOVE
+            </button>
+          </div>
+          <hr class='m-0'>
+          <!-- Item Body (Collapsible Content) -->
+          <div *ngIf='!itemCollapsedStates[i]' class='item-body p-3'>
+            <div class='row'>
+              <!-- HS Code & Description -->
+              <div class='col-md-3 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>HS Code*</label>
+                <input (focus)="itemUIStates[i].focusSearchHsCodes$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchHsCodes' 
+                class='form-control' formControlName='hsCode' type='text'  popupClass="hs-code-typeahead">
+              </div>
+              <div class='col-md-9 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>HS Code Description (Autofill)*</label>
+           <input (focus)="itemUIStates[i].focusSearchHsCodesDES$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchHsCodesDES' 
+             class='form-control' formControlName='HsCodetDescription' type='text'  popupClass="hs-code-typeahead">
+              </div>
+            <div class='col-md-3 mb-3'>
+  <label class='form-label fw-bolder text-secondary d-flex align-items-center'>
+    Unit of Measurement (UoM)
+    <div *ngIf='itemUIStates[i].uomLoading' class='spinner-border spinner-border-sm text-secondary ms-2'></div>
+  </label>
+  <input class='form-control' formControlName='uoM' type='text' (focus)="itemUIStates[i].focusSearchUom$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchUom' popupClass="hs-code-typeahead" >
+</div>
+              <div class='col-md-9 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Product Description*</label>
+                <input class='form-control' formControlName='productDescription' >
+              </div>
+                   <!-- Quantity, UoM -->
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Quantity*</label>
+                <input class='form-control' formControlName='quantity' type='number'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Sale Type*</label>
+                <input (focus)="itemUIStates[i].focusSearchSalesTypes$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchSalesTypes' 
+                class='form-control' formControlName='saleType' type='text' popupClass="hs-code-typeahead">
+              </div>
+              <!-- Rate, SROs -->
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder d-flex align-items-center'>
+                  Rate*
+                  <div *ngIf='itemUIStates[i].ratesLoading' class='spinner-border spinner-border-sm text-secondary ms-2'></div>
+                </label>
+                <input (focus)="itemUIStates[i].focusSearchRates$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchRates' class='form-control' formControlName='rate' type='text'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label class='form-label fw-bolder d-flex align-items-center text-secondary'>
+                  SRO Schedule No
+                  <div *ngIf='itemUIStates[i].sroSchLoading' class='spinner-border spinner-border-sm text-secondary ms-2'></div>
+                </label>
+                <input (focus)="itemUIStates[i].focusSearchSros$.next('')" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchSros' class='form-control' formControlName='sroScheduleNo' type='text'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label class='form-label fw-bolder d-flex align-items-center text-secondary'>
+                  SRO Item No
+                  <div *ngIf='itemUIStates[i].sroItemLoading' class='spinner-border spinner-border-sm text-secondary ms-2'></div>
+                </label>
+                <input (focus)="itemUIStates[i].focusSearchSroItemNos$.next('')" popupClass="hs-code-typeahead" [focusFirst]='false' [ngbTypeahead]='itemUIStates[i].searchSroItemNos' class='form-control' formControlName='sroItemSerialNo' type='text'>
+              </div>
+
+         
+  
+              <!-- Values -->
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Value (Excl. ST)*</label>
+                <input class='form-control' formControlName='valueSalesExcludingST' type='number'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Sales Tax*</label>
+               <input class="form-control" formControlName="salesTaxApplicable" type="number" readonly>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Total Value*</label>
+                <input class="form-control" formControlName="totalValues" type="number" readonly>
+              </div>
+
+              <!-- Prices and Withholding -->
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Fixed/Retail Price*</label>
+                <input class='form-control' formControlName='fixedNotifiedValueOrRetailPrice' type='number'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>ST Withheld*</label>
+                <input class='form-control' formControlName='salesTaxWithheldAtSource' type='number'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Discount*</label>
+                <input class='form-control' formControlName='discount' type='number'>
+              </div>
+
+              <!-- Other Taxes -->
+              <div class='col-md-2 mb-3'>
+                <label class='form-label fw-bolder text-secondary'>Extra Tax</label>
+                <input class='form-control' formControlName='extraTax' type='text'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>Further Tax*</label>
+                <input class='form-control' formControlName='furtherTax' type='number'>
+              </div>
+              <div class='col-md-2 mb-3'>
+                <label [ngClass]='formLabelColors' class='form-label fw-bolder'>FED Payable*</label>
+                <input class='form-control' formControlName='fedPayable' type='number'>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Submit Button -->
+    <div class='d-flex justify-content-center my-5 pb-5'>
+      <button (click)='onSubmit()' *ngIf='!sandboxTesting' [disabled]='isSubmitting || invoiceForm.invalid' class='btn btn-success btn-lg' type='submit'>
+        <span *ngIf='!isSubmitting'><i class='ti ti-send me-2'></i>{{editMode ? "Update" : "Submit"}} Invoice</span>
+        <span *ngIf='isSubmitting'><span class='spinner-border spinner-border-sm me-2'></span>{{editMode ? "Updating" : "Submitting"}}...</span>
+      </button>
+      <button (click)='onSubmit()' *ngIf='sandboxTesting' [disabled]='isSubmitting || invoiceForm.invalid' class='btn btn-success btn-lg' type='submit'>
+        <span *ngIf='!isSubmitting'><i class='ti ti-send me-2'></i>Submit To FBR</span>
+        <span *ngIf='isSubmitting'><span class='spinner-border spinner-border-sm me-2'></span>Submitting to FBR...</span>
+      </button>
+    </div>
+  </form>
+</div>

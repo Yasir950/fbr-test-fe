@@ -1,0 +1,26 @@
+.card {
+  .card-header {
+    .btn-group .btn {
+      min-width: 120px;
+    }
+  }
+
+  table {
+    th, td {
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .badge {
+      text-transform: capitalize;
+      font-size: 0.9rem;
+      padding: 0.5em 0.75em;
+    }
+
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  }
+}

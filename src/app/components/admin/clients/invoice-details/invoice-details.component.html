@@ -1,0 +1,245 @@
+<div class='container-fluid mt-0'>
+  <!-- Loading and Error States -->
+  <div *ngIf='isLoading' class='text-center p-5'>
+    <div class='spinner-border text-primary' role='status' style='width: 3rem; height: 3rem;'></div>
+    <h4 class='mt-3'>Loading Invoice Details...</h4>
+  </div>
+  <div *ngIf='error' class='alert alert-danger'>{{ error }}</div>
+  <div *ngIf='errorMessages.length > 0' class='alert alert-danger' role='alert'>
+    <ul class='mb-0'>
+      <li *ngFor='let error of errorMessages'>{{ error }}</li>
+    </ul>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div *ngIf='invoice && !isLoading' class='row g-4'>
+    <!-- Left Column: Invoice Core Details -->
+    <div class='col-xl-8'>
+      <!-- General Invoice Info Card -->
+      <div class='card mb-4'>
+        <div *ngIf="invoice.status == 'submitted'" class='card-header d-flex {{invoice?.response?.invoiceNumber ? "justify-content-between" : "justify-content-center"}} align-items-center'>
+         
+          <h4 *ngIf='invoice?.response?.invoiceNumber' class='mb-0 fw-bolder text-success'><span>FBR INVOICE:</span> <span class='mx-2 d-inline-block fw-normal'>{{ invoice?.response?.invoiceNumber}}</span></h4>
+          <span [ngClass]='getStatusInfo(invoice.status).color' class='badge fs-6 w-25 py-2'>{{ invoice.status | titlecase }}</span>
+        </div>
+        <div class='card-body'>
+          <button (click)="goBack()" 
+            class="btn btn-primary btn-sm rounded  border me-1" >
+      <i class="ti ti-arrow-left" style="font-size: 1rem;">Back</i> 
+      </button>
+          <div class='row'>
+            <div class='col-md-2 mt-2'>
+              <p class='mb-1 text-primary fw-bolder'>Invoice Type:</p>
+              <h6>{{ invoice.invoice_data.invoiceType}}</h6>
+            </div>
+            <div *ngIf='invoice.invoice_data.invoiceRefNo' class='col-md-2 mt-2'>
+              <p class='mb-1 text-primary fw-bolder'>Invoice Ref #:</p>
+              <h6>{{invoice.invoice_data.invoiceRefNo}}</h6>
+            </div>
+            <div class='col-md-2 mt-2'>
+              <p class='mb-1 text-primary fw-bolder'>Invoice Date:</p>
+              <h6>{{ invoice?.invoice_data?.invoiceDate }}</h6>
+            </div>
+            <div *ngIf='invoice.updated_at' class='col-md-3 mt-2'>
+              <p class='mb-1 text-primary fw-bolder'>Last Updated:</p>
+              <h6>{{ invoice.updated_at | date:'medium' }}</h6>
+            </div>
+            <div class='col-md-2 mt-2'>
+              <p class='mb-1 text-primary fw-bolder'>Internal Invoice ID:</p>
+              <h6>{{invoice?.invoice_data?.csvInvoiceId}}</h6>
+            </div>
+            <div class='col-md-3'>
+              <button (click)='editInvoiceAction()' *ngIf="invoice.status != 'submitted'" class='btn btn-danger my-2'>EDIT INVOICE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Seller and Buyer Details Card -->
+      <div class='card mb-4'>
+        <div class='card-body'>
+          <div class='row'>
+            <!-- Seller -->
+            <div class='col-md-6'>
+              <h5 class='mb-3 text-primary fw-bolder'><i class='ti ti-user me-2 text-primary'></i>Seller Details</h5>
+              <dl class='row'>
+                <dt class='col-sm-4'>Business Name:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.sellerBusinessName }}</dd>
+                <dt class='col-sm-4'>NTN / CNIC:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.sellerNTNCNIC }}</dd>
+                <dt class='col-sm-4'>Province:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.sellerProvince }}</dd>
+                <dt class='col-sm-4'>Address:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.sellerAddress }}</dd>
+              </dl>
+            </div>
+            <!-- Buyer -->
+            <div class='col-md-6'>
+              <h5 class='mb-3 text-success fw-bolder'><i class='ti ti-user-check me-2 text-success'></i>Buyer Details</h5>
+              <dl class='row'>
+                <dt class='col-sm-4'>Business Name:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.buyerBusinessName }}</dd>
+                <dt class='col-sm-4'>NTN / CNIC:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.buyerNTNCNIC }}</dd>
+                <dt class='col-sm-4'>Province:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.buyerProvince }}</dd>
+                <dt class='col-sm-4'>Address:</dt>
+                <dd class='col-sm-8'>{{ invoice.invoice_data.buyerAddress }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Items Card -->
+      <div class='card'>
+        <div class='card-header'>
+          <h5 class='mb-0 text-primary fw-bolder'>Invoice Items ({{ invoice.invoice_data.items.length }})</h5>
+        </div>
+        <div class='card-body'>
+          <div class='accordion' id='invoiceItemsAccordion'>
+            <div *ngFor='let item of invoice.invoice_data.items; let i = index' class='accordion-item'>
+              <h2 [id]="'heading' + i" class='accordion-header'>
+                <button (click)='toggleItem(i)' [class.collapsed]='itemCollapsedStates[i]' class='accordion-button' type='button'>
+                  <strong><span class='fw-bolder text-decoration-underline'>Hs Code:</span> {{ item.hsCode }}</strong>
+                  <span class='ms-auto me-2'>Quantity: {{ item.quantity }} | Value: {{ item.valueSalesExcludingST | currency:'PKR ' }}</span>
+                </button>
+              </h2>
+              <div [id]="'collapse' + i" [ngClass]="{ 'show': !itemCollapsedStates[i] }" class='accordion-collapse collapse'>
+                <div class='accordion-body'>
+                  <div class='row'>
+                    <!--                    <div *ngFor='let entry of item | keyvalue' class='col-md-6'>-->
+                    <!--                      <dl class='row mb-1'>-->
+                    <!--                        <dt class='col-6 text-muted'>{{ entry.key | titlecase }}</dt>-->
+                    <!--                        <dd class='col-6'>{{ entry.value }}</dd>-->
+                    <!--                      </dl>-->
+                    <!--                    </div>-->
+                    <div *ngFor="let prop of item['displayProperties']" class='col-md-6'>
+                      <dl class='row mb-1'>
+                        <dt class='col-6 text-muted'>{{ prop.label }}</dt>
+                        <dd class='col-6'>{{ prop.value !== '' ? prop.value : '-' }}</dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+       <ng-container *ngIf="UI_ErrorDetails">
+  <div class="card-header">
+    <h5 class="mb-0 text-danger fw-bolder">Last Submission Error</h5>
+  </div>
+  
+  <div class="alert alert-danger mx-3" role="alert">
+    <ng-container *ngIf="UI_ErrorDetails.type === 'standard'">
+      <p *ngIf="UI_ErrorDetails.data?.error" class="mb-0">
+        {{ UI_ErrorDetails.data.error }}
+      </p>
+
+      <ul *ngIf="UI_ErrorDetails.data?.invoiceStatuses?.length" class="mb-0 ps-3">
+        <li *ngFor="let status of UI_ErrorDetails.data.invoiceStatuses">
+          <strong>Item #{{ status.itemSNo }}:</strong> {{ status.error }}
+        </li>
+      </ul>
+    </ng-container>
+
+    <ng-container *ngIf="UI_ErrorDetails.type === 'fbr_raw'">
+      <p class="mb-1 fw-bold">
+        {{ UI_ErrorDetails.errorMsg }}
+      </p>
+      <p class="mb-0 small text-muted" *ngIf="UI_ErrorDetails.fbrError">
+        <span class="badge bg-secondary me-1">Code {{ UI_ErrorDetails.fbrCode }}</span>
+        {{ UI_ErrorDetails.fbrError }}
+      </p>
+    </ng-container>
+
+    <p *ngIf="UI_ErrorDetails.type === 'fallback'" class="mb-0 text-break" style="white-space: pre-wrap;">
+      {{ UI_ErrorDetails.errorMsg }}
+    </p>
+  </div>
+</ng-container>
+      </div>
+    </div>
+
+    <!-- Right Column: Actions and History -->
+    <div class='col-xl-4'>
+      <!-- Status Update Card -->
+      <div *ngIf='invoice.status != "submitted"' class='card mb-4'>
+        <div class='card-header'>
+          <h5 class='mb-0 fw-bolder text-primary'>Update Status</h5>
+        </div>
+        <div class='card-body'>
+          <form (ngSubmit)='updateStatus()' [formGroup]='statusUpdateForm'>
+            <div class='mb-3'>
+              <label class='form-label fw-bolder text-primary'>Status*</label>
+              <select class='form-select' formControlName='status'>
+                <option [value]='availableStatuses[0]'>{{ availableStatuses[0].toString().replace("_", " ") | titlecase }}</option>
+                <option *ngIf='aclLevel > 1' [value]='availableStatuses[1]'>{{ availableStatuses[1].toString().replace("_", " ") | titlecase }}</option>
+                <option *ngIf='aclLevel > 1' [value]='availableStatuses[2]'>{{ availableStatuses[2].toString().replace("_", " ") | titlecase }}</option>
+              </select>
+            </div>
+            <div class='mb-3'>
+              <label class='form-label fw-bolder text-primary'>Comments*</label>
+              <textarea class='form-control' formControlName='comments' rows='3'></textarea>
+            </div>
+            <button [disabled]='isUpdatingStatus || statusUpdateForm.invalid' class='btn btn-primary w-100' type='submit'>
+              <span *ngIf='!isUpdatingStatus'>Update</span>
+              <span *ngIf='isUpdatingStatus'>
+                <span class='spinner-border spinner-border-sm me-2'></span>Updating...
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div *ngIf='invoice.status == "final_review" && aclLevel > 2' class='card mb-4'>
+        <div class='card-body'>
+          <!-- Submit Button -->
+          <div class='d-flex justify-content-center my-0 pb-0'>
+            <button (click)='onSubmit()' class='btn btn-success btn-lg w-100' type='submit'>
+              <span *ngIf='!isSubmitting'><i class='ti ti-send me-2'></i>Submit To FBR</span>
+              <span *ngIf='isSubmitting'><span class='spinner-border spinner-border-sm me-2'></span>Submitting to FBR...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submitter Info -->
+      <div class='card mb-4'>
+        <div class='card-header'><h5 class='mb-0 fw-bolder text-primary'>Submitter Information</h5></div>
+        <div class='card-body'>
+          <h6><i class='ti ti-user me-2'></i>{{ invoice.submitter.firstName }} {{ invoice.submitter.lastName  }}</h6>
+          <p class='mb-1'><i class='ti ti-phone me-2'></i>{{ invoice.submitter.cellNumber2 }}</p>
+          <p class='mb-0'><i class='ti ti-device-mobile me-2'></i>{{ invoice.submitter.cellNumber2 }}</p>
+        </div>
+      </div>
+
+      <!-- Transaction History Card -->
+      <div class='card'>
+        <div class='card-header'><h5 class='mb-0'>Invoice History</h5></div>
+        <div class='list-group list-group-flush'>
+          <div *ngFor='let event of invoice.history' class='list-group-item'>
+            <div class='d-flex'>
+              <div class='flex-shrink-0'>
+                <div [ngClass]='getStatusInfo(event.status).color' class='history-avatar rounded-circle d-flex align-items-center justify-content-center'>
+                  <i class='{{ getStatusInfo(event.status).icon }} f-18'></i>
+                </div>
+              </div>
+              <div class='flex-grow-1 ms-3'>
+                <h6 class='mb-0'>{{ event.status | uppercase }}</h6>
+                <p class='mb-1 text-muted small'>{{ event.timestamp | date:'short' }}</p>
+                <div class='d-flex align-items-center'>
+                  <i class='ti ti-user me-1 small'></i><small>{{ event.user.firstName }} {{ event.user.lastName }} ({{ event.user.cellNumber1 }})</small>
+                </div>
+                <p *ngIf='event.comments' class='history-comment fst-italic p-2 mt-2 rounded'>
+                  {{ event.comments }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

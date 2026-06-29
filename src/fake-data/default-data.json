@@ -1,0 +1,102 @@
+[
+  {
+    "id": "10293847",
+    "name": "Bright Optics",
+    "submitted": "51,224",
+    "initialReview": "88",
+    "finalReview": "134",
+    "rejected": "70",
+    "totalPending": "901",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "18273645",
+    "name": "Infinity Tech",
+    "submitted": "47,321",
+    "initialReview": "81",
+    "finalReview": "122",
+    "rejected": "65",
+    "totalPending": "880",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "84736291",
+    "name": "SmartTech Solutions",
+    "submitted": "46,517",
+    "initialReview": "59",
+    "finalReview": "105",
+    "rejected": "63",
+    "totalPending": "820",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "90817263",
+    "name": "NextGen Devices",
+    "submitted": "44,508",
+    "initialReview": "57",
+    "finalReview": "96",
+    "rejected": "48",
+    "totalPending": "799",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "56473829",
+    "name": "Visionary Systems",
+    "submitted": "42,190",
+    "initialReview": "62",
+    "finalReview": "113",
+    "rejected": "68",
+    "totalPending": "832",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "84564564",
+    "name": "Camera Company",
+    "submitted": "40,141",
+    "initialReview": "55",
+    "finalReview": "102",
+    "rejected": "66",
+    "totalPending": "823",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "29384756",
+    "name": "Nova Electronics",
+    "submitted": "39,841",
+    "initialReview": "74",
+    "finalReview": "99",
+    "rejected": "51",
+    "totalPending": "740",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "93284756",
+    "name": "Tech Vision Inc",
+    "submitted": "35,412",
+    "initialReview": "72",
+    "finalReview": "91",
+    "rejected": "44",
+    "totalPending": "765",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "75849302",
+    "name": "Prime Optics",
+    "submitted": "33,904",
+    "initialReview": "49",
+    "finalReview": "87",
+    "rejected": "39",
+    "totalPending": "690",
+    "link": "/admin/client-details?ntn=0000000"
+  },
+  {
+    "id": "56382947",
+    "name": "Global Gadgets",
+    "submitted": "28,903",
+    "initialReview": "65",
+    "finalReview": "118",
+    "rejected": "59",
+    "totalPending": "540",
+    "link": "/admin/client-details?ntn=0000000"
+  }
+]

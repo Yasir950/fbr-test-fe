@@ -1,0 +1,55 @@
+<div class='card'>
+  <div class='card-body'>
+    <form (ngSubmit)='onSubmit()' [formGroup]='clientForm'>
+      <!-- Fetch Status Alerts -->
+      <div *ngIf='error' class='alert alert-danger p-2'>{{ error }}</div>
+      <div *ngIf='fetchSuccess' class='alert alert-success p-2'>{{ fetchSuccess }}</div>
+      <!-- Seller NTN / CNIC -->
+      <div class='row'>
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder text-primary' for='sellerNTNCNIC'>Client NTN / CNIC*</label>
+          <div class='input-group'>
+            <input [ngClass]="{ 'is-invalid': clientForm.get('sellerNTNCNIC').touched && clientForm.get('sellerNTNCNIC').invalid }" class='form-control' formControlName='sellerNTNCNIC' id='sellerNTNCNIC' placeholder='Enter NTN and click Fetch' type='text'>
+          </div>
+          <div *ngIf="clientForm.get('sellerNTNCNIC').touched && clientForm.get('sellerNTNCNIC').errors" class='invalid-feedback d-block'>
+            <div *ngIf="clientForm.get('sellerNTNCNIC').errors?.['required']">NTN / CNIC is required.</div>
+            <div *ngIf="clientForm.get('sellerNTNCNIC').errors?.['minlength']">Must be at least 7 characters.</div>
+          </div>
+        </div>
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder text-primary' for='sellerBusinessName'>Business Name*</label>
+          <input class='form-control' formControlName='sellerBusinessName' id='sellerBusinessName' placeholder='Client business name' type='text'>
+        </div>
+
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder text-primary' for='sellerProvince'>Province*</label>
+          <input class='form-control' formControlName='sellerProvince' id='sellerProvince' placeholder='Client province' type='text' (focus)="focusSearchProvinces$.next('')" [focusFirst]='false' [ngbTypeahead]='searchProvinces'>
+        </div>
+
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder text-primary' for='sellerAddress'>Address*</label>
+          <textarea class='form-control' formControlName='sellerAddress' id='sellerAddress' placeholder='Client address' rows='3'></textarea>
+        </div>
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder text-primary' for='sandboxToken'>Sandbox Token*</label>
+          <textarea class='form-control' formControlName='sandboxToken' id='sandboxToken' placeholder='FBR sandbox token for invoices submission' rows='3'></textarea>
+        </div>
+        <div class='mb-3 col-4'>
+          <label class='form-label fw-bolder' for='productionToken'>Production Token</label>
+          <textarea class='form-control' formControlName='productionToken' id='productionToken' placeholder='FBR production token for invoices submission' rows='3'></textarea>
+        </div>
+      </div>
+      <hr>
+      <!-- Submit Button -->
+      <div class='d-flex justify-content-center'>
+        <button [disabled]='loadingSubmit || clientForm.invalid' [ngClass]="loadingSubmit ? 'btn-secondary' : 'btn-primary'" class='btn btn-lg' type='submit'>
+          <span *ngIf='!loadingSubmit'>Submit Client</span>
+          <span *ngIf='loadingSubmit'>
+            <span class='spinner-border spinner-border-sm me-2'></span>
+            Submitting...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

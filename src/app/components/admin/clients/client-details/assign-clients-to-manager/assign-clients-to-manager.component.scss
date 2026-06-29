@@ -1,0 +1,22 @@
+.dropdown-menu.hs-code-typeahead {
+  max-height: 320px;
+  overflow-y: scroll;
+}
+::ng-deep .dropdown-menu.hs-code-typeahead {
+  max-height: 320px;
+  overflow-y: scroll;
+}
+// Keep dropdown open feel with hover highlight on checked rows
+::ng-deep ngb-typeahead-window .dropdown-item {
+  padding: 0 !important;
+
+  &:active, &.active {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+}
+
+::ng-deep ngb-typeahead-window .dropdown-item:has(input[type="checkbox"]:checked) {
+  background-color: rgba(var(--bs-primary-rgb), 0.06) !important;
+  border-left: 3px solid var(--bs-primary);
+}

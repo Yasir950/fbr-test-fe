@@ -1,0 +1,13 @@
+<!-- Vertical layout -->
+<!--<ng-scrollbar id='nav-ps-mantis' style='height: calc(100vh - 88px)' visibility='hover'>-->
+<!--</ng-scrollbar>-->
+
+<div class='navbar-content'>
+  <ul (clickOutside)='fireOutClick()' (mouseleave)='navMob()' class='nav coded-inner-navbar'>
+    <ng-container *ngFor='let item of navigation'>
+      <app-nav-group *ngIf="item.type === 'group'" [item]='item'></app-nav-group>
+      <app-nav-collapse *ngIf="item.type === 'collapse'" [item]='item'></app-nav-collapse>
+      <app-nav-item *ngIf="item.type === 'item'" [item]='item'></app-nav-item>
+    </ng-container>
+  </ul>
+</div>

@@ -1,0 +1,125 @@
+<div *ngIf="loading" class="container mt-0 py-5 text-center">
+  <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+  <h4 class="text-primary my-3 text-uppercase">- Loading Client Data -</h4>
+</div>
+
+<div *ngIf="manager && !loading" class="container animate-fade-in">
+  <div class="row wallet-modal-header-container position-relative">
+    <div class="col-12">
+      <span (click)="activeModal.dismiss()" class="wallet-modal-closer bg-danger cursor-pointer">
+        <img alt="Close" src="assets/images/close.png">
+      </span>
+      <h4 class="text-center font-size-18 fw-bold extra-letter-spacing mb-0 pb-2 pt-3 text-uppercase">
+        Assign Clients To Manager<br>
+        <span class="badge bg-light-primary text-primary mt-1">{{ manager.firstName }} {{ manager.lastName }}</span>
+      </h4>
+    </div>
+  </div>
+
+  <div class="row wallet-modal-content-container p-3">
+    <div class="col-12">
+      
+      <div class="mb-4">
+        <h5 class="form-label fw-bolder text-primary">
+          <i class="ti ti-search me-1"></i> Search and Assign Clients
+        </h5>
+        
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0"><i class="ti ti-search"></i></span>
+        <input id="typeahead-clients" type="text" class="form-control border-start-0 ps-0"
+       placeholder="Type client name or NTN to search..."
+       [(ngModel)]="typeaheadModel"
+       [ngbTypeahead]="searchClients"
+       [resultFormatter]="resultFormatter"
+       [inputFormatter]="inputFormatter"
+       [resultTemplate]="rt"
+       (selectItem)="onSelectItem($event)"
+       (focus)="focusSearchClients$.next(typeaheadModel || '')"
+       #typeaheadInput="ngbTypeahead"
+       [focusFirst]="false" />
+        </div>
+        <small class="form-text text-muted mt-2 d-block">
+          Select individual clients or use <strong>"ADD ALL MATCHES"</strong> to assign a group.
+        </small>
+      </div>
+
+      <div>
+        <h5 class="mb-3 fw-bolder text-primary d-flex justify-content-between align-items-center">
+          <span><i class="ti ti-building-community me-1"></i> Assigned Clients</span>
+          <span class="badge bg-primary rounded-pill">{{ assignedClients.length }}</span>
+        </h5>
+
+        <div *ngIf="assignedClients.length > 0; else noClientsAssigned" class="table-responsive border rounded shadow-sm bg-white" style="max-height: 400px;">
+          <table class="table table-hover table-sm mb-0">
+            <thead class="bg-light sticky-top">
+              <tr class="small text-uppercase">
+                <th class="ps-3">Client Name</th>
+                <th>NTN / CNIC</th>
+                <th>Province</th>
+                <th class="text-end pe-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of assignedClients" class="align-middle">
+                <td class="ps-3"><strong>{{ client.sellerBusinessName }}</strong></td>
+                <td class="font-monospace text-muted small">{{ client.sellerNTNCNIC }}</td>
+                <td><span class="badge bg-light-secondary text-dark">{{ client.sellerProvince }}</span></td>
+                <td class="text-end pe-3">
+                  <button (click)="removeClient(client)" class="btn btn-sm btn-outline-danger border-0">
+                    <i class="ti ti-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #noClientsAssigned>
+          <div class="alert alert-light border border-dashed text-center py-4">
+            <i class="ti ti-info-circle d-block mb-2 text-muted" style="font-size: 2rem;"></i>
+            No clients assigned yet. Use the search bar above to start.
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer bg-light-faded mt-3 border-top-0">
+    <button (click)="activeModal.dismiss()" class="btn btn-link text-muted fw-bold text-decoration-none" type="button">Cancel</button>
+    <button (click)="onSubmit()" [disabled]="isSaving" class="btn btn-success px-4 shadow-sm" type="button">
+      <span *ngIf="!isSaving"><i class="ti ti-device-floppy me-1"></i> Save Changes</span>
+      <span *ngIf="isSaving">
+        <span class="spinner-border spinner-border-sm me-2"></span> Saving...
+      </span>
+    </button>
+  </div>
+</div>
+
+<ng-template #rt let-r="result" let-t="term">
+  <div class="py-1 px-2" [class.bg-light-success]="r.isAction">
+    <div class="d-flex align-items-center gap-2" [class.text-success]="r.isAction" [class.fw-bolder]="r.isAction">
+      
+      <!-- Checkbox for regular clients -->
+      <ng-container *ngIf="!r.isAction">
+        <input 
+          type="checkbox" 
+          class="form-check-input mt-0 flex-shrink-0"
+          [checked]="isClientSelected(r)"
+          (click)="$event.stopPropagation()"
+          style="cursor:pointer; width:15px; height:15px;"
+        />
+      </ng-container>
+
+      <!-- Add All action icon -->
+      <i *ngIf="r.isAction" class="ti ti-checks fs-5"></i>
+      <i *ngIf="!r.isAction" class="ti ti-building text-muted"></i>
+
+      <div class="d-flex flex-column">
+        <ngb-highlight [result]="r.sellerBusinessName" [term]="t"></ngb-highlight>
+        <small *ngIf="!r.isAction" class="text-muted font-monospace" style="font-size: 0.75rem;">
+          {{ r.sellerNTNCNIC }}
+        </small>
+      </div>
+    </div>
+  </div>
+</ng-template>

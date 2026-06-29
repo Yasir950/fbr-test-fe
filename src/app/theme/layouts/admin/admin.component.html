@@ -1,0 +1,27 @@
+<ng-container *ngIf='!loading'>
+  <app-navigation (NavCollapse)='this.navCollapsed = !this.navCollapsed' (NavCollapsedMob)='navMobClick()' [ngClass]="{'navbar-collapsed': navCollapsed, 'mob-open': navCollapsedMob}" class='coded-navbar pc-sidebar'></app-navigation>
+  <app-nav-bar (NavCollapse)='this.navCollapsed = !this.navCollapsed' (NavCollapsedMob)='navMobClick()'></app-nav-bar>
+  <div class='pc-container'>
+    <div class='coded-wrapper'>
+      <div class='coded-content'>
+        <div class='coded-inner-content'>
+          <app-breadcrumb></app-breadcrumb>
+          <div class='main-body'>
+            <div class='page-wrapper'>
+              <router-outlet></router-outlet>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-container *ngIf='loading'>
+  <app-spinner></app-spinner>
+  <h2 class='text-center text-primary my-5'>- LOADING -</h2>
+  <div class='d-flex justify-content-center align-items-center'>
+    <div class='spinner-border text-primary' role='status' style='width: 6rem; height: 6rem;'>
+      <span class='visually-hidden'>Loading...</span>
+    </div>
+  </div>
+</ng-container>
