@@ -1,0 +1,64 @@
+<div class="onboarding-page">
+  <div class="container py-5">
+
+    <div class="text-center mb-5">
+      <img src="assets/images/vize-logo.jpeg" alt="logo" style="height:60px;" class="mb-3" />
+      <h2 class="fw-bold text-primary">Choose Your Subscription Package</h2>
+      <p class="text-muted">Select a plan to start submitting invoices to FBR. All packages valid 1 Jul 2026 – 30 Jun 2027.</p>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-5">
+      <span class="spinner-border text-primary"></span>
+      <p class="text-muted mt-2">Loading packages...</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
+
+    <div class="row g-4" *ngIf="!loading">
+      <div class="col-md-6 col-lg-3" *ngFor="let pkg of packages">
+        <div class="card h-100 border-0 shadow-sm pkg-card" [class.pkg-selected]="selectedId === pkg.id">
+          <div class="card-body d-flex flex-column">
+            <span *ngIf="pkg.contact_for_more" class="badge bg-warning text-dark mb-2 align-self-start">Custom Pricing</span>
+
+            <h4 class="fw-bold text-primary mb-1">{{ pkg.name }}</h4>
+            <div class="mb-2">
+              <span class="fs-3 fw-bold text-dark" *ngIf="!pkg.contact_for_more">{{ formatPrice(pkg.price) }}<span class="fs-6 fw-normal text-muted">/year</span></span>
+              <span class="fs-5 fw-bold text-warning" *ngIf="pkg.contact_for_more">0300-5174187</span>
+            </div>
+
+            <div class="alert alert-light p-2 mb-2 small" *ngIf="!pkg.contact_for_more">
+              <i class="ti ti-file-invoice text-primary me-1"></i>
+              <strong>{{ pkg.invoices_per_year | number }}</strong> invoices/year
+              <span class="text-muted d-block">(avg {{ pkg.avg_per_month }}/month)</span>
+            </div>
+
+            <p class="text-muted small flex-grow-1">{{ pkg.description }}</p>
+
+            <ul class="list-unstyled mb-3 small">
+              <li *ngFor="let f of pkg.features" class="mb-1"><i class="ti ti-check text-success me-1"></i>{{ f }}</li>
+            </ul>
+
+            <button
+              *ngIf="!pkg.contact_for_more"
+              class="btn btn-primary mt-auto"
+              [disabled]="generating"
+              (click)="choose(pkg)">
+              <span *ngIf="generating && selectedId === pkg.id" class="spinner-border spinner-border-sm me-1"></span>
+              {{ generating && selectedId === pkg.id ? 'Generating...' : 'Select Package' }}
+            </button>
+            <a *ngIf="pkg.contact_for_more" href="tel:03005174187" class="btn btn-warning mt-auto">
+              <i class="ti ti-phone me-1"></i>Call for Quote
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info small mt-4 text-center">
+      <i class="ti ti-info-circle me-1"></i>
+      If your allotted invoice quota is used before 30 Jun 2027, an additional <strong>Rs. 5,000</strong> upgrade fee
+      applies to continue the service.
+    </div>
+
+  </div>
+</div>

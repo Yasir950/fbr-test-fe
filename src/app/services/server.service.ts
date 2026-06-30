@@ -16,12 +16,16 @@ export class ServerService {
     });
 
     // Add token before every request
+    // Endpoints that don't require a JWT — must be hit without forcing a redirect-to-login.
+    const PUBLIC_ENDPOINTS = ['login', 'signup', 'forgot-password', 'reset-password', 'validate-reset-token'];
+
     this.axiosInstance.interceptors.request.use(config => {
       const token = localStorage.getItem('token');
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
       } else {
-        if (!config.url.includes('login')) {
+        const isPublic = PUBLIC_ENDPOINTS.some(ep => config.url.includes(ep));
+        if (!isPublic) {
           this.router.navigateByUrl('').then();
           this.toastService.showToast('error', 'User is not logged-in.');
         }
@@ -105,4 +109,56 @@ getHsCodes(clientId: string): Promise<any[]> {
 postHsCodeReport(clientId: string, payload: { hscodes: string[], start_date: string, end_date: string }): Promise<any[]> {
   return this.post<any[]>('/admin/reports/comprehensive-hs-code', payload, { client_id: clientId });
 }
+  // ─── Subscription / Package APIs ─────────────────────────────────────────
+
+  getPackages(): Promise<any[]> {
+    return this.get<any[]>('/packages');
+  }
+
+  createPackage(data: any): Promise<any> {
+    return this.post<any>('/admin/packages/create', data);
+  }
+
+  updatePackage(data: any): Promise<any> {
+    return this.put<any>('/admin/packages/update', data);
+  }
+
+  deletePackage(packageId: string): Promise<any> {
+    return this.axiosInstance.delete('/admin/packages/delete', { params: { package_id: packageId } }).then(r => r.data);
+  }
+
+  getClientSubscription(clientId: string): Promise<any> {
+    return this.get<any>('/admin/client/subscription', { client_id: clientId });
+  }
+
+  listClientSubscriptions(clientId: string): Promise<any[]> {
+    return this.get<any[]>('/admin/client/subscriptions', { client_id: clientId });
+  }
+
+  listClinkPayments(clientId: string): Promise<any[]> {
+    return this.get<any[]>('/admin/client/clink-payments', { client_id: clientId });
+  }
+
+  generateClinkPayment(data: any): Promise<any> {
+    return this.post<any>('/admin/client/generate-payment', data);
+  }
+
+  upgradeSubscription(data: any): Promise<any> {
+    return this.post<any>('/admin/client/upgrade-subscription', data);
+  }
+
+  // ─── Client onboarding self-service ──────────────────────────────────────
+
+  getMyAccountStatus(): Promise<any> {
+    return this.get<any>('/my-account-status');
+  }
+
+  selectPackageSelf(packageId: string): Promise<any> {
+    return this.post<any>('/select-package', { package_id: packageId });
+  }
+
+  upgradePackageSelf(): Promise<any> {
+    return this.post<any>('/upgrade-package', {});
+  }
+
 }

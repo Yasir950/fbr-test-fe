@@ -28,6 +28,11 @@ import { ServerService } from './services/server.service';
 import { InvoicesPdfService } from './services/invoices.pdf.service';
 import { BillingPdfService } from './services/billing-pdf.service';
 
+// NOTE: PackagesComponent, GeneratePaymentComponent, ClientSubscriptionComponent are
+// standalone components exported as `default`. They must NOT be declared here.
+// They are either lazy-loaded via the router (packages) or directly imported
+// in the standalone components that use them (generate-payment, client-subscription).
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,12 +48,16 @@ import { BillingPdfService } from './services/billing-pdf.service';
     NavItemComponent,
     LoginComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, SharedModule, BrowserAnimationsModule, ReactiveFormsModule, NgbModalModule, HotToastModule.forRoot({
-    dismissible: true,
-    theme: 'snackbar'
-  })],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    SharedModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    NgbModalModule,
+    HotToastModule.forRoot({ dismissible: true, theme: 'snackbar' })
+  ],
   providers: [NavigationItem, UtilityService, ToastService, ServerService, InvoicesPdfService, BillingPdfService],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-}
+export class AppModule {}

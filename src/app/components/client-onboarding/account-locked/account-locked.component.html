@@ -1,0 +1,83 @@
+<div class="onboarding-page d-flex align-items-center justify-content-center">
+  <div class="container" style="max-width:640px;">
+
+    <div *ngIf="loading" class="text-center py-5">
+      <span class="spinner-border text-primary"></span>
+      <p class="text-muted mt-2">Checking account status...</p>
+    </div>
+
+    <div *ngIf="!loading" class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+
+        <div class="text-center mb-3">
+          <div class="lock-icon mb-3">🔒</div>
+          <h3 class="fw-bold text-danger" *ngIf="stage === 'locked_quota_exhausted'">Account Locked — Quota Exhausted</h3>
+          <h3 class="fw-bold text-danger" *ngIf="stage === 'locked_expired'">Account Locked — Subscription Expired</h3>
+
+          <p class="text-muted" *ngIf="stage === 'locked_quota_exhausted'">
+            You've used all <strong>{{ invoicesQuota | number }}</strong> invoices included in your
+            {{ subscription?.package?.name || subscription?.package_name }} package
+            ({{ invoicesUsed | number }} / {{ invoicesQuota | number }} used).
+            Pay <strong>Rs. 5,000</strong> to top up your quota and continue submitting invoices before 30 Jun 2027.
+          </p>
+          <p class="text-muted" *ngIf="stage === 'locked_expired'">
+            Your subscription period has ended. Please contact support or select a new package to continue.
+          </p>
+        </div>
+
+        <!-- Quota usage bar -->
+        <div class="mb-4" *ngIf="stage === 'locked_quota_exhausted'">
+          <div class="progress" style="height:10px;">
+            <div class="progress-bar bg-danger" style="width:100%;"></div>
+          </div>
+          <div class="d-flex justify-content-between small text-muted mt-1">
+            <span>{{ invoicesUsed | number }} used</span>
+            <span>{{ invoicesQuota | number }} total</span>
+          </div>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger small">{{ error }}</div>
+
+        <!-- Upgrade payment voucher -->
+        <div *ngIf="upgradePayment" class="voucher mb-3">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <div class="voucher-label">1-Bill Consumer Number</div>
+              <div class="voucher-id">{{ upgradePayment.one_bill_consumer_no }}</div>
+              <button class="copy-btn mt-2" (click)="copy(upgradePayment.one_bill_consumer_no, 'c')">
+                {{ copied === 'c' ? '✓ Copied!' : 'Copy Number' }}
+              </button>
+            </div>
+            <div class="col-md-5">
+              <div class="voucher-label">Amount</div>
+              <div class="fs-3 fw-bold">Rs. {{ upgradePayment.amount | number }}/-</div>
+            </div>
+          </div>
+          <div class="small mt-3 pt-2" style="border-top:1px solid rgba(255,255,255,.15); opacity:.8;">
+            Due by {{ upgradePayment.due_date }}. Your account unlocks automatically once payment is confirmed.
+          </div>
+        </div>
+
+        <div class="text-center" *ngIf="stage === 'locked_quota_exhausted' && !upgradePayment">
+          <button class="btn btn-warning btn-lg" [disabled]="generatingUpgrade" (click)="requestUpgrade()">
+            <span *ngIf="generatingUpgrade" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="ti ti-arrow-up-circle me-1" *ngIf="!generatingUpgrade"></i>
+            Pay Rs. 5,000 to Upgrade
+          </button>
+        </div>
+
+        <div class="text-center mt-3" *ngIf="stage === 'locked_expired'">
+          <a href="tel:03005174187" class="btn btn-primary btn-lg">
+            <i class="ti ti-phone me-1"></i>Call 0300-5174187
+          </a>
+        </div>
+
+        <div class="text-center mt-3">
+          <button class="btn btn-outline-secondary btn-sm" (click)="check()">
+            <i class="ti ti-refresh me-1"></i>Check Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

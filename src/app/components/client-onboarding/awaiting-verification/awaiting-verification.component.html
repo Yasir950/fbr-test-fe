@@ -1,0 +1,63 @@
+<div class="onboarding-page d-flex align-items-center justify-content-center">
+  <div class="container" style="max-width:600px;">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+
+        <div class="text-center mb-3">
+          <div class="pulse-icon mb-3">⚙️</div>
+          <h3 class="fw-bold text-primary">Setting Up Your FBR Account</h3>
+          <p class="text-muted">
+            Your payment has been confirmed. Our team is now manually registering
+            <strong *ngIf="businessName">{{ businessName }}</strong><span *ngIf="!businessName">your business</span>
+            with FBR's portal to issue your production API token.
+          </p>
+          <p class="text-muted">
+            This usually takes <strong>1–2 business days.</strong> You'll be automatically redirected
+            once your account is verified.
+          </p>
+        </div>
+
+        <div class="alert alert-success small">
+          <i class="ti ti-circle-check me-1"></i>
+          <strong>Payment received</strong><span *ngIf="packageName"> — {{ packageName }} package</span>
+        </div>
+
+        <div class="step-tracker mt-3">
+          <div class="step-item done">
+            <div class="step-dot">✓</div>
+            <div>
+              <div class="step-title">Payment Confirmed</div>
+            </div>
+          </div>
+          <div class="step-item active">
+            <div class="step-dot">2</div>
+            <div>
+              <div class="step-title">FBR Registration (Manual)</div>
+              <div class="step-desc">Our team registers your NTN on FBR portal</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div>
+              <div class="step-title">Production Token Issued</div>
+              <div class="step-desc">Token assigned to your account</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">4</div>
+            <div>
+              <div class="step-title">Submit FBR Invoices</div>
+              <div class="step-desc">Your dashboard unlocks</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-outline-primary btn-sm" (click)="check()" [disabled]="loading">
+            <i class="ti ti-refresh me-1"></i>Check Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -121,3 +121,50 @@ export type SubmissionStats = {
   submitted_this_month: number;
   submitted_this_year: number;
 };
+
+// ─── Subscription / Package models ───────────────────────────────────────────
+
+export interface Package {
+  id: string;
+  name: string;
+  price: number;
+  invoices_per_year: number;
+  avg_per_month: number;
+  description: string;
+  features: string[];
+  contact_for_more: boolean;
+  is_active: boolean;
+}
+
+export interface ClientSubscription {
+  id: string;
+  client_id: string;
+  package_id: string;
+  package?: Package;
+  package_name: string;
+  price_paid: number;
+  invoices_quota: number;
+  invoices_used: number;
+  invoices_remaining: number;
+  valid_from: string;
+  valid_to: string;
+  status: 'active' | 'expired' | 'superseded';
+  upgrade_history: any[];
+  created_at: string;
+}
+
+export interface ClinkPayment {
+  id: string;
+  client_id: string;
+  package_id: string;
+  package_name?: string;
+  amount: number;
+  clink_id: string;
+  one_bill_consumer_no: string;
+  biller_no: string;
+  due_date: string;
+  status: 'pending' | 'paid' | 'failed';
+  paid_at: string | null;
+  is_upgrade?: boolean;
+  created_at: string;
+}

@@ -5,10 +5,27 @@ import { RouterModule, Routes } from '@angular/router';
 // Project import
 import LoginComponent from './components/authentication/login/login.component';
 import { AdminComponent } from './theme/layouts/admin/admin.component';
+import { OnboardingStatusGuard } from './guards/onboarding-status.guard';
 
 const routes: Routes = [
   {
     path: '',
+    component: LoginComponent
+  },
+  {
+    path: 'signup',
+    loadComponent: () => import('./components/authentication/signup/signup.component')
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./components/authentication/forgot-password/forgot-password.component')
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./components/authentication/reset-password/reset-password.component')
+  },
+  {
+    path: 'login',
     component: LoginComponent
   },
   {
@@ -17,8 +34,32 @@ const routes: Routes = [
 
   },
   {
+    path: 'onboarding',
+    canActivate: [OnboardingStatusGuard],
+    children: [
+      {
+        path: 'select-package',
+        loadComponent: () => import('./components/client-onboarding/select-package/select-package.component')
+      },
+      {
+        path: 'payment-pending',
+        loadComponent: () => import('./components/client-onboarding/payment-pending/payment-pending.component')
+      },
+      {
+        path: 'awaiting-verification',
+        loadComponent: () => import('./components/client-onboarding/awaiting-verification/awaiting-verification.component')
+      },
+      {
+        path: 'account-locked',
+        loadComponent: () => import('./components/client-onboarding/account-locked/account-locked.component')
+      }
+    ]
+  },
+  {
     path: 'admin',
     component: AdminComponent,
+    canActivate: [OnboardingStatusGuard],
+    canActivateChild: [OnboardingStatusGuard],
     children: [
       {
         path: 'dashboard',
@@ -91,7 +132,11 @@ const routes: Routes = [
       {
         path: 'reporting',
         loadComponent: () => import('./components/admin/clients/reporting/reporting.component')
-      }
+      },
+      // {
+      //   path: 'packages',
+      //   loadComponent: () => import('./components/admin/subscriptions/packages/packages.component')
+      // }
     ]
   }
 ];
