@@ -97,7 +97,10 @@ export default class SignupComponent implements OnInit {
       const me = await this.serverService.get<any>('/me');
       localStorage.setItem('user', JSON.stringify(me));
 
-      this.router.navigateByUrl('onboarding/select-package').then();
+      // Land the new user straight in the app — no forced package selection or
+      // payment step. They can browse everything immediately and pick a package
+      // whenever they're ready from the "My Package" item in the sidebar.
+      this.router.navigateByUrl('admin/dashboard').then();
     } catch (error: any) {
       this.errorMsg = error.response?.data?.detail || 'Signup failed. Please try again.';
     }

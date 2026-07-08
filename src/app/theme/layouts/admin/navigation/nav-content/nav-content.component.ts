@@ -28,7 +28,26 @@ export class NavContentComponent implements OnInit {
   // Constructor
   constructor(public nav: NavigationItem, private zone: NgZone, private location: Location, private locationStrategy: LocationStrategy) {
     this.windowWidth = window.innerWidth;
-    this.navigation = this.nav.get();
+    this.navigation = this.filterForRole(this.nav.get());
+  }
+
+  /**
+   * The "Subscription / My Package" nav group only applies to client
+   * (submitter) accounts — portal staff have no subscription of their own.
+   */
+  private filterForRole(items: any[]): any[] {
+    let isClientUser = false;
+    try {
+      const userRaw = localStorage.getItem('user');
+      const user = userRaw ? JSON.parse(userRaw) : null;
+      isClientUser = !!(user && user.clientId);
+    } catch {
+      isClientUser = false;
+    }
+    if (isClientUser) {
+      return items;
+    }
+    return items.filter((item) => item.id !== 'subscription');
   }
 
   // Life cycle events

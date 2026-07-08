@@ -122,7 +122,22 @@ const NavigationItems = [
       }
     ]
   },
-  
+   {
+    id: 'subscription',
+    title: 'Subscription',
+    type: 'group',
+    icon: 'icon-navigation',
+    children: [
+      {
+        id: 'my-package',
+        title: 'My Package',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/admin/package',
+        icon: 'ti ti-credit-card'
+      }
+    ]
+  },
 ];
 
 @Injectable()

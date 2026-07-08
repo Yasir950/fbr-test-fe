@@ -133,10 +133,10 @@ const routes: Routes = [
         path: 'reporting',
         loadComponent: () => import('./components/admin/clients/reporting/reporting.component')
       },
-      // {
-      //   path: 'packages',
-      //   loadComponent: () => import('./components/admin/subscriptions/packages/packages.component')
-      // }
+      {
+        path: 'package',
+        loadComponent: () => import('./components/admin/subscription/my-package/my-package.component')
+      }
     ]
   }
 ];

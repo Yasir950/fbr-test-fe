@@ -1,0 +1,281 @@
+<div class="my-package-page">
+
+  <div *ngIf="loading" class="text-center py-5">
+    <span class="spinner-border text-primary"></span>
+    <p class="text-muted mt-2">Loading your subscription details...</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Redirect-reason banner (shown when the user was bounced here from a gated action) -->
+    <div *ngIf="reasonMessage" class="alert alert-warning d-flex align-items-center mb-4">
+      <i class="ti ti-alert-triangle me-2 fs-5"></i>
+      <div>{{ reasonMessage }}</div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Portal staff have no subscription of their own -->
+    <div *ngIf="isPortalStaff" class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="ti ti-shield-check fs-1 text-primary mb-2 d-block"></i>
+        <h5 class="fw-bold mb-1">No subscription applies to your account</h5>
+        <p class="text-muted mb-0">Package management is only relevant for client (submitter) accounts. Client subscriptions can be viewed from each client's details page.</p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!isPortalStaff">
+
+      <!-- ── STAGE: no_package — choose a plan ─────────────────────────────── -->
+      <ng-container *ngIf="status?.stage === 'no_package'">
+        <div class="mb-4">
+          <h4 class="fw-bold mb-1">Choose Your Subscription Package</h4>
+          <p class="text-muted mb-0">Select a plan to start submitting invoices to FBR. All packages valid 1 Jul 2026 – 30 Jun 2027.</p>
+        </div>
+
+        <div *ngIf="packagesLoading" class="text-center py-4">
+          <span class="spinner-border spinner-border-sm text-primary"></span>
+        </div>
+
+        <div class="row g-4" *ngIf="!packagesLoading">
+          <div class="col-md-6 col-lg-3" *ngFor="let pkg of packages">
+            <div class="card h-100 border-0 shadow-sm pkg-card" [class.pkg-selected]="selectedId === pkg.id">
+              <div class="card-body d-flex flex-column">
+                <span *ngIf="pkg.contact_for_more" class="badge bg-warning text-dark mb-2 align-self-start">Custom Pricing</span>
+
+                <h5 class="fw-bold text-primary mb-1">{{ pkg.name }}</h5>
+                <div class="mb-2">
+                  <span class="fs-4 fw-bold" *ngIf="!pkg.contact_for_more">{{ formatPrice(pkg.price) }}<span class="fs-6 fw-normal text-muted">/year</span></span>
+                  <span class="fs-5 fw-bold text-warning" *ngIf="pkg.contact_for_more">0300-5174187</span>
+                </div>
+
+                <div class="alert alert-light p-2 mb-2 small" *ngIf="!pkg.contact_for_more">
+                  <i class="ti ti-file-invoice text-primary me-1"></i>
+                  <strong>{{ pkg.invoices_per_year | number }}</strong> invoices/year
+                  <span class="text-muted d-block">(avg {{ pkg.avg_per_month }}/month)</span>
+                </div>
+
+                <p class="text-muted small flex-grow-1">{{ pkg.description }}</p>
+
+                <ul class="list-unstyled mb-3 small">
+                  <li *ngFor="let f of pkg.features" class="mb-1"><i class="ti ti-check text-success me-1"></i>{{ f }}</li>
+                </ul>
+
+                <button
+                  *ngIf="!pkg.contact_for_more"
+                  class="btn btn-primary mt-auto"
+                  [disabled]="generating"
+                  (click)="choose(pkg)">
+                  <span *ngIf="generating && selectedId === pkg.id" class="spinner-border spinner-border-sm me-1"></span>
+                  {{ generating && selectedId === pkg.id ? 'Generating...' : 'Select Package' }}
+                </button>
+                <a *ngIf="pkg.contact_for_more" href="tel:03005174187" class="btn btn-warning mt-auto">
+                  <i class="ti ti-phone me-1"></i>Call for Quote
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── STAGE: payment_pending — show the 1-Bill voucher ──────────────── -->
+      <ng-container *ngIf="status?.stage === 'payment_pending'">
+        <div class="card border-0 shadow-sm" style="max-width:640px;">
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <div class="pulse-icon mb-3">💳</div>
+              <h4 class="fw-bold text-primary">Waiting for Payment Confirmation</h4>
+              <p class="text-muted mb-0">Once you complete the 1-Bill payment, this updates automatically (checked every 15 seconds). You can keep using the rest of the app while you wait.</p>
+            </div>
+
+            <div *ngIf="status.pending_payment" class="voucher mb-3 p-3">
+              <div class="row g-3">
+                <div class="col-md-7">
+                  <div class="voucher-label">1-Bill Consumer Number</div>
+                  <div class="voucher-id">{{ status.pending_payment.one_bill_consumer_no }}</div>
+                  <button class="copy-btn mt-2" (click)="copy(status.pending_payment.one_bill_consumer_no, 'c')">
+                    {{ copied === 'c' ? '✓ Copied!' : 'Copy Number' }}
+                  </button>
+                </div>
+                <div class="col-md-5">
+                  <div class="voucher-label">Clink ID</div>
+                  <div class="voucher-id small">{{ status.pending_payment.clink_id }}</div>
+                </div>
+              </div>
+              <div class="row mt-3 pt-3 voucher-divider">
+                <div class="col-6">
+                  <div class="voucher-label">Amount</div>
+                  <div class="fs-4 fw-bold">Rs. {{ status.pending_payment.amount | number }}/-</div>
+                </div>
+                <div class="col-6 text-end">
+                  <div class="voucher-label">Package</div>
+                  <div class="fw-bold">{{ status.pending_payment.package_name }}</div>
+                  <div class="voucher-label mt-1">Due Date</div>
+                  <div class="text-warning fw-bold">{{ status.pending_payment.due_date }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info small mb-0">
+              <i class="ti ti-info-circle me-1"></i>
+              <strong>How to pay:</strong> Open your banking app → Bills → 1-Bill → Enter Consumer Number → Pay.
+              Or visit any bank ATM, JazzCash, EasyPaisa, or UBL Omni.
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── STAGE: awaiting_verification ───────────────────────────────────── -->
+      <ng-container *ngIf="status?.stage === 'awaiting_verification'">
+        <div class="card border-0 shadow-sm" style="max-width:640px;">
+          <div class="card-body p-4 text-center">
+            <i class="ti ti-clock-hour-4 fs-1 text-primary mb-2 d-block"></i>
+            <h4 class="fw-bold mb-2">Payment Confirmed — Verification In Progress</h4>
+            <p class="text-muted mb-0">Our team is registering your business on FBR's portal. This usually takes 1-2 business days. You'll be able to submit invoices as soon as it's done — feel free to explore the rest of the app in the meantime.</p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── STAGE: locked_quota_exhausted / locked_expired ─────────────────── -->
+      <ng-container *ngIf="status?.stage === 'locked_quota_exhausted' || status?.stage === 'locked_expired'">
+        <div class="card border-0 shadow-sm mb-4" style="max-width:640px;">
+          <div class="card-body p-4">
+            <div class="text-center mb-3">
+              <i class="ti ti-lock fs-1 text-danger mb-2 d-block"></i>
+              <h4 class="fw-bold mb-1">
+                {{ status.stage === 'locked_expired' ? 'Your subscription has expired' : "You've used all your invoices" }}
+              </h4>
+              <p class="text-muted mb-0">{{ status.message }}</p>
+            </div>
+
+            <div *ngIf="status.stage === 'locked_quota_exhausted'" class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>{{ status.invoices_used }} used</span>
+                <span>{{ status.invoices_quota }} total</span>
+              </div>
+              <div class="progress" style="height:8px;">
+                <div class="progress-bar bg-danger" [style.width.%]="100"></div>
+              </div>
+            </div>
+
+            <div class="text-center" *ngIf="!upgradePayment">
+              <button class="btn btn-danger" [disabled]="generatingUpgrade" (click)="requestUpgrade()">
+                <span *ngIf="generatingUpgrade" class="spinner-border spinner-border-sm me-1"></span>
+                {{ generatingUpgrade ? 'Generating...' : 'Pay Rs. 5,000 to Continue' }}
+              </button>
+            </div>
+
+            <div *ngIf="upgradePayment" class="voucher mt-3 p-3">
+              <div class="row g-3">
+                <div class="col-md-7">
+                  <div class="voucher-label">1-Bill Consumer Number</div>
+                  <div class="voucher-id">{{ upgradePayment.one_bill_consumer_no }}</div>
+                  <button class="copy-btn mt-2" (click)="copy(upgradePayment.one_bill_consumer_no, 'u')">
+                    {{ copied === 'u' ? '✓ Copied!' : 'Copy Number' }}
+                  </button>
+                </div>
+                <div class="col-md-5">
+                  <div class="voucher-label">Clink ID</div>
+                  <div class="voucher-id small">{{ upgradePayment.clink_id }}</div>
+                </div>
+              </div>
+              <div class="row mt-3 pt-3 voucher-divider">
+                <div class="col-6">
+                  <div class="voucher-label">Amount</div>
+                  <div class="fs-4 fw-bold">Rs. {{ upgradePayment.amount | number }}/-</div>
+                </div>
+                <div class="col-6 text-end">
+                  <div class="voucher-label">Due Date</div>
+                  <div class="text-warning fw-bold">{{ upgradePayment.due_date }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── STAGE: active — package summary ─────────────────────────────────── -->
+      <ng-container *ngIf="status?.stage === 'active'">
+        <div class="mb-4">
+          <h4 class="fw-bold mb-1">My Package</h4>
+          <p class="text-muted mb-0">Your current subscription and invoice usage.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <div class="text-muted small">Current Package</div>
+                    <h4 class="fw-bold text-primary mb-0">{{ status.subscription?.package?.name || status.subscription?.package_name }}</h4>
+                  </div>
+                  <span class="badge bg-success">Active</span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <div class="text-muted small">Valid From</div>
+                    <div class="fw-bold">{{ formatDate(status.subscription?.valid_from) }}</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-muted small">Valid To</div>
+                    <div class="fw-bold">{{ formatDate(status.subscription?.valid_to) }}</div>
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span><strong>{{ status.invoices_used }}</strong> invoices used</span>
+                    <span><strong>{{ status.invoices_remaining }}</strong> remaining of {{ status.invoices_quota }}</span>
+                  </div>
+                  <div class="progress" style="height:8px;">
+                    <div class="progress-bar"
+                         [class.bg-danger]="quotaPercent >= 90"
+                         [class.bg-warning]="quotaPercent >= 70 && quotaPercent < 90"
+                         [class.bg-success]="quotaPercent < 70"
+                         [style.width.%]="quotaPercent"></div>
+                  </div>
+                </div>
+
+                <div class="alert alert-light small mb-0 mt-3">
+                  <i class="ti ti-info-circle me-1"></i>
+                  Running low on invoices? You can top up your quota any time for a flat Rs. 5,000 — it adds another full year's worth of invoices to your current package.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4 d-flex flex-column">
+                <div class="text-muted small mb-1">Top Up Quota</div>
+                <p class="small text-muted flex-grow-1">Add {{ status.invoices_quota }} more invoices to your current package for a flat Rs. 5,000 via 1-Bill.</p>
+
+                <div class="text-center" *ngIf="!upgradePayment">
+                  <button class="btn btn-outline-primary" [disabled]="generatingUpgrade" (click)="requestUpgrade()">
+                    <span *ngIf="generatingUpgrade" class="spinner-border spinner-border-sm me-1"></span>
+                    {{ generatingUpgrade ? 'Generating...' : 'Generate Rs. 5,000 Voucher' }}
+                  </button>
+                </div>
+
+                <div *ngIf="upgradePayment" class="voucher mt-2 p-3">
+                  <div class="voucher-label">1-Bill Consumer Number</div>
+                  <div class="voucher-id">{{ upgradePayment.one_bill_consumer_no }}</div>
+                  <button class="copy-btn mt-2" (click)="copy(upgradePayment.one_bill_consumer_no, 'a')">
+                    {{ copied === 'a' ? '✓ Copied!' : 'Copy Number' }}
+                  </button>
+                  <div class="voucher-divider mt-3 pt-2 d-flex justify-content-between">
+                    <span class="fw-bold">Rs. {{ upgradePayment.amount | number }}/-</span>
+                    <span class="text-warning small">Due {{ upgradePayment.due_date }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+    </ng-container>
+  </ng-container>
+</div>
