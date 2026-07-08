@@ -1,1 +1,62 @@
-<p>payment-pending works!</p>
+<div class="onboarding-page d-flex align-items-center justify-content-center">
+  <div class="container" style="max-width:640px;">
+
+    <div *ngIf="loading" class="text-center py-5">
+      <span class="spinner-border text-primary"></span>
+      <p class="text-muted mt-2">Checking payment status...</p>
+    </div>
+
+    <div *ngIf="!loading" class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+
+        <div class="text-center mb-4">
+          <div class="pulse-icon mb-3">💳</div>
+          <h3 class="fw-bold text-primary">Waiting for Payment Confirmation</h3>
+          <p class="text-muted">
+            Once you complete the 1-Bill payment, this page updates automatically (checking every 15 seconds).
+          </p>
+        </div>
+
+        <div *ngIf="payment" class="voucher mb-3">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <div class="voucher-label">1-Bill Consumer Number</div>
+              <div class="voucher-id">{{ payment.one_bill_consumer_no }}</div>
+              <button class="copy-btn mt-2" (click)="copy(payment.one_bill_consumer_no, 'c')">
+                {{ copied === 'c' ? '✓ Copied!' : 'Copy Number' }}
+              </button>
+            </div>
+            <div class="col-md-5">
+              <div class="voucher-label">Clink ID</div>
+              <div class="voucher-id small">{{ payment.clink_id }}</div>
+            </div>
+          </div>
+          <div class="row mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.15);">
+            <div class="col-6">
+              <div class="voucher-label">Amount</div>
+              <div class="fs-3 fw-bold">Rs. {{ payment.amount | number }}/-</div>
+            </div>
+            <div class="col-6 text-end">
+              <div class="voucher-label">Package</div>
+              <div class="fw-bold">{{ payment.package_name }}</div>
+              <div class="voucher-label mt-1">Due Date</div>
+              <div class="text-warning fw-bold">{{ payment.due_date }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info small mb-2">
+          <i class="ti ti-info-circle me-1"></i>
+          <strong>How to pay:</strong> Open your banking app → Bills → 1-Bill → Enter Consumer Number → Pay.
+          Or visit any bank ATM, JazzCash, EasyPaisa, or UBL Omni.
+        </div>
+
+        <div class="text-center mt-3">
+          <button class="btn btn-outline-primary btn-sm" (click)="check()">
+            <i class="ti ti-refresh me-1"></i>Check Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

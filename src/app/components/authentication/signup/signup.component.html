@@ -1,124 +1,131 @@
-<div class="auth-main">
-  <div class="auth-wrapper v3">
-    <div class="auth-form" style="max-width: 720px;">
-      <div class="card">
-        <img alt="logo" class="admin-logo" src="assets/images/vize-logo.jpeg" />
-        <h3 class="text-center text-primary py-3">Create Your FBR Invoicing Account</h3>
-        <p class="text-center text-muted px-4 mb-4" style="margin-top:-1rem;">
-          Register your business to start submitting digital invoices to FBR.
+<div class="signup-page">
+
+
+  <div class="signup-card">
+    <div class="signup-card-body">
+
+      <img alt="logo" class="admin-logo" src="assets/images/fintel_logo.jpg" />
+      <h3 class="signup-title text-primary">Create Your FBR Invoicing Account</h3>
+      <p class="signup-subtitle text-muted">
+        Register your business to start submitting digital invoices to FBR.
+      </p>
+
+      <form (ngSubmit)="onSubmit()" [formGroup]="signupForm">
+
+        <!-- ── Your Details ───────────────────────────────────────────── -->
+        <h6 class="section-heading text-primary">
+          <i class="ti ti-user-circle"></i> Your Details
+        </h6>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="firstName">First Name*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.firstName.errors}" class="form-control" formControlName="firstName" id="firstName" type="text" />
+            <div *ngIf="formSubmitted && f.firstName.errors" class="invalid-feedback">First name is required (min 2 characters).</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="lastName">Last Name*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.lastName.errors}" class="form-control" formControlName="lastName" id="lastName" type="text" />
+            <div *ngIf="formSubmitted && f.lastName.errors" class="invalid-feedback">Last name is required (min 2 characters).</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="email">Email Address*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.email.errors}" class="form-control" formControlName="email" id="email" type="email" placeholder="you@business.com" />
+            <div *ngIf="formSubmitted && f.email.errors" class="invalid-feedback">A valid email is required (used for password recovery).</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="username">Username*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.username.errors}" class="form-control" formControlName="username" id="username" type="text" />
+            <div *ngIf="formSubmitted && f.username.errors" class="invalid-feedback">Username is required (min 3 characters).</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3 position-relative">
+            <label class="form-label fw-bolder text-primary" for="password">Password*</label>
+            <input [type]="hidePassword ? 'password' : 'text'" [ngClass]="{'is-invalid': formSubmitted && f.password.errors}" class="form-control pe-5" formControlName="password" id="password" />
+            <span class="password-toggle" (click)="togglePassword()">
+              <i class="ti" [ngClass]="hidePassword ? 'ti-eye' : 'ti-eye-off'"></i>
+            </span>
+            <div *ngIf="formSubmitted && f.password.errors" class="invalid-feedback d-block">Password must be at least 8 characters.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="confirmPassword">Confirm Password*</label>
+            <input [type]="hidePassword ? 'password' : 'text'" [ngClass]="{'is-invalid': formSubmitted && (f.confirmPassword.errors || signupForm.errors?.['passwordMismatch'])}" class="form-control" formControlName="confirmPassword" id="confirmPassword" />
+            <div *ngIf="formSubmitted && signupForm.errors?.['passwordMismatch']" class="invalid-feedback d-block">Passwords do not match.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="cellNumber1">Cell Number 1*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.cellNumber1.errors}" class="form-control" formControlName="cellNumber1" id="cellNumber1" mask="0000-0000000" placeholder="XXXX-XXXXXXX" type="text" />
+            <div *ngIf="formSubmitted && f.cellNumber1.errors" class="invalid-feedback">Primary cell number is required.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="cellNumber2">Cell Number 2 (Optional)</label>
+            <input class="form-control" formControlName="cellNumber2" id="cellNumber2" mask="0000-0000000" placeholder="XXXX-XXXXXXX" type="text" />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bolder text-primary" for="address">Your Address*</label>
+          <textarea [ngClass]="{'is-invalid': formSubmitted && f.address.errors}" class="form-control" formControlName="address" id="address" rows="2"></textarea>
+          <div *ngIf="formSubmitted && f.address.errors" class="invalid-feedback">Address is required (min 10 characters).</div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ── Business Details ───────────────────────────────────────── -->
+        <h6 class="section-heading text-primary">
+          <i class="ti ti-building-store"></i> Business Details
+        </h6>
+
+        <div class="mb-3">
+          <label class="form-label fw-bolder text-primary" for="sellerBusinessName">Business Name*</label>
+          <input [ngClass]="{'is-invalid': formSubmitted && f.sellerBusinessName.errors}" class="form-control" formControlName="sellerBusinessName" id="sellerBusinessName" type="text" />
+          <div *ngIf="formSubmitted && f.sellerBusinessName.errors" class="invalid-feedback">Business name is required.</div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="sellerNTNCNIC">NTN / CNIC*</label>
+            <input [ngClass]="{'is-invalid': formSubmitted && f.sellerNTNCNIC.errors}" class="form-control" formControlName="sellerNTNCNIC" id="sellerNTNCNIC" type="text" placeholder="e.g. 1234567 or 13-digit CNIC" />
+            <div *ngIf="formSubmitted && f.sellerNTNCNIC.errors" class="invalid-feedback">Valid NTN/CNIC is required.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bolder text-primary" for="sellerProvince">Province*</label>
+            <select [ngClass]="{'is-invalid': formSubmitted && f.sellerProvince.errors}" class="form-select" formControlName="sellerProvince" id="sellerProvince">
+              <option value="" disabled selected>Select province</option>
+              <option *ngFor="let p of provinces" [value]="p">{{ p }}</option>
+            </select>
+            <div *ngIf="formSubmitted && f.sellerProvince.errors" class="invalid-feedback">Province is required.</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bolder text-primary" for="sellerAddress">Business Address*</label>
+          <textarea [ngClass]="{'is-invalid': formSubmitted && f.sellerAddress.errors}" class="form-control" formControlName="sellerAddress" id="sellerAddress" rows="2"></textarea>
+          <div *ngIf="formSubmitted && f.sellerAddress.errors" class="invalid-feedback">Business address is required (min 10 characters).</div>
+        </div>
+
+        <div *ngIf="errorMsg" class="alert alert-danger mt-2">{{ errorMsg }}</div>
+
+        <div class="d-grid mt-4">
+          <button [disabled]="isLoading" [ngClass]="isLoading ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg submit-btn" type="submit">
+            <span *ngIf="!isLoading">Create Account</span>
+            <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating Account...</span>
+          </button>
+        </div>
+
+        <p class="signup-footer">
+          Already have an account? <a [routerLink]="['/login']" class="link-primary">Sign in</a>
         </p>
 
-        <div class="card-body pt-0">
-          <form (ngSubmit)="onSubmit()" [formGroup]="signupForm">
-
-            <h6 class="fw-bolder text-primary mb-3"><i class="ti ti-user-circle me-1"></i>Your Details</h6>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="firstName">First Name*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.firstName.errors}" class="form-control" formControlName="firstName" id="firstName" type="text" />
-                <div *ngIf="formSubmitted && f.firstName.errors" class="invalid-feedback">First name is required (min 2 characters).</div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="lastName">Last Name*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.lastName.errors}" class="form-control" formControlName="lastName" id="lastName" type="text" />
-                <div *ngIf="formSubmitted && f.lastName.errors" class="invalid-feedback">Last name is required (min 2 characters).</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="email">Email Address*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.email.errors}" class="form-control" formControlName="email" id="email" type="email" placeholder="you@business.com" />
-                <div *ngIf="formSubmitted && f.email.errors" class="invalid-feedback">A valid email is required (used for password recovery).</div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="username">Username*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.username.errors}" class="form-control" formControlName="username" id="username" type="text" />
-                <div *ngIf="formSubmitted && f.username.errors" class="invalid-feedback">Username is required (min 3 characters).</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3 position-relative">
-                <label class="form-label fw-bolder text-primary" for="password">Password*</label>
-                <input [type]="hidePassword ? 'password' : 'text'" [ngClass]="{'is-invalid': formSubmitted && f.password.errors}" class="form-control pe-5" formControlName="password" id="password" />
-                <span class="password-toggle" (click)="togglePassword()">
-                  <i class="ti" [ngClass]="hidePassword ? 'ti-eye' : 'ti-eye-off'"></i>
-                </span>
-                <div *ngIf="formSubmitted && f.password.errors" class="invalid-feedback d-block">Password must be at least 8 characters.</div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="confirmPassword">Confirm Password*</label>
-                <input [type]="hidePassword ? 'password' : 'text'" [ngClass]="{'is-invalid': formSubmitted && (f.confirmPassword.errors || signupForm.errors?.['passwordMismatch'])}" class="form-control" formControlName="confirmPassword" id="confirmPassword" />
-                <div *ngIf="formSubmitted && signupForm.errors?.['passwordMismatch']" class="invalid-feedback d-block">Passwords do not match.</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="cellNumber1">Cell Number 1*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.cellNumber1.errors}" class="form-control" formControlName="cellNumber1" id="cellNumber1" mask="0000-0000000" placeholder="XXXX-XXXXXXX" type="text" />
-                <div *ngIf="formSubmitted && f.cellNumber1.errors" class="invalid-feedback">Primary cell number is required.</div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="cellNumber2">Cell Number 2 (Optional)</label>
-                <input class="form-control" formControlName="cellNumber2" id="cellNumber2" mask="0000-0000000" placeholder="XXXX-XXXXXXX" type="text" />
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bolder text-primary" for="address">Your Address*</label>
-              <textarea [ngClass]="{'is-invalid': formSubmitted && f.address.errors}" class="form-control" formControlName="address" id="address" rows="2"></textarea>
-              <div *ngIf="formSubmitted && f.address.errors" class="invalid-feedback">Address is required (min 10 characters).</div>
-            </div>
-
-            <hr class="my-4">
-
-            <h6 class="fw-bolder text-primary mb-3"><i class="ti ti-building-store me-1"></i>Business Details</h6>
-
-            <div class="mb-3">
-              <label class="form-label fw-bolder text-primary" for="sellerBusinessName">Business Name*</label>
-              <input [ngClass]="{'is-invalid': formSubmitted && f.sellerBusinessName.errors}" class="form-control" formControlName="sellerBusinessName" id="sellerBusinessName" type="text" />
-              <div *ngIf="formSubmitted && f.sellerBusinessName.errors" class="invalid-feedback">Business name is required.</div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="sellerNTNCNIC">NTN / CNIC*</label>
-                <input [ngClass]="{'is-invalid': formSubmitted && f.sellerNTNCNIC.errors}" class="form-control" formControlName="sellerNTNCNIC" id="sellerNTNCNIC" type="text" placeholder="e.g. 1234567 or 13-digit CNIC" />
-                <div *ngIf="formSubmitted && f.sellerNTNCNIC.errors" class="invalid-feedback">Valid NTN/CNIC is required.</div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label fw-bolder text-primary" for="sellerProvince">Province*</label>
-                <select [ngClass]="{'is-invalid': formSubmitted && f.sellerProvince.errors}" class="form-select" formControlName="sellerProvince" id="sellerProvince">
-                  <option value="" disabled selected>Select province</option>
-                  <option *ngFor="let p of provinces" [value]="p">{{ p }}</option>
-                </select>
-                <div *ngIf="formSubmitted && f.sellerProvince.errors" class="invalid-feedback">Province is required.</div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bolder text-primary" for="sellerAddress">Business Address*</label>
-              <textarea [ngClass]="{'is-invalid': formSubmitted && f.sellerAddress.errors}" class="form-control" formControlName="sellerAddress" id="sellerAddress" rows="2"></textarea>
-              <div *ngIf="formSubmitted && f.sellerAddress.errors" class="invalid-feedback">Business address is required (min 10 characters).</div>
-            </div>
-
-            <div *ngIf="errorMsg" class="alert alert-danger mt-2">{{ errorMsg }}</div>
-
-            <div class="d-grid mt-4">
-              <button [disabled]="isLoading" [ngClass]="isLoading ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg" type="submit">
-                <span *ngIf="!isLoading">Create Account</span>
-                <span *ngIf="isLoading"><span class="spinner-border spinner-border-sm me-2"></span>Creating Account...</span>
-              </button>
-            </div>
-
-            <p class="text-center mt-3 mb-0">
-              Already have an account? <a [routerLink]="['/login']" class="link-primary">Sign in</a>
-            </p>
-          </form>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </div>

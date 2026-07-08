@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, CanActivateChild, Router, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  CanActivateChild,
+  Router,
+  RouterStateSnapshot,
+  UrlTree
+} from '@angular/router';
 import { ServerService } from '../services/server.service';
 import { User } from '../services/app.models';
 
@@ -13,15 +20,54 @@ import { User } from '../services/app.models';
  */
 @Injectable({ providedIn: 'root' })
 export class OnboardingStatusGuard implements CanActivate, CanActivateChild {
+  // Caches the in-flight status check so concurrent guard invocations
+  // (e.g. parent + child route both resolving at once) share one request
+  // instead of firing duplicate calls.
+  private pendingCheck: Promise<any> | null = null;
+  private lastCheckedAt = 0;
+  private lastResult: any = null;
+  private readonly CACHE_MS = 4000;
+
   constructor(private serverService: ServerService, private router: Router) {}
 
-  canActivateChild(): Promise<boolean | UrlTree> {
-    return this.canActivate();
+  canActivateChild(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
+    return this.check(state.url);
   }
 
-  async canActivate(): Promise<boolean | UrlTree> {
+  canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
+    return this.check(state.url);
+  }
+
+  private async getStatus(): Promise<any> {
+    // Short-lived cache + de-duplication: prevents a burst of guard calls
+    // (parent route + child route + re-entrant redirects) from each firing
+    // their own /my-account-status request within the same navigation.
+    const now = Date.now();
+    if (this.lastResult && now - this.lastCheckedAt < this.CACHE_MS) {
+      return this.lastResult;
+    }
+    if (this.pendingCheck) {
+      return this.pendingCheck;
+    }
+    this.pendingCheck = this.serverService.getMyAccountStatus()
+      .then((status) => {
+        this.lastResult = status;
+        this.lastCheckedAt = Date.now();
+        return status;
+      })
+      .finally(() => {
+        this.pendingCheck = null;
+      });
+    return this.pendingCheck;
+  }
+
+  private async check(targetUrl: string): Promise<boolean | UrlTree> {
     const token = localStorage.getItem('token');
     if (!token) {
+      // Already heading to a public auth page — don't redirect again.
+      if (['/login', '/signup', '/forgot-password', '/reset-password', '/'].some(p => targetUrl.split('?')[0] === p)) {
+        return true;
+      }
       return this.router.createUrlTree(['/login']);
     }
 
@@ -33,9 +79,10 @@ export class OnboardingStatusGuard implements CanActivate, CanActivateChild {
       return true;
     }
 
+    const currentPath = targetUrl.split('?')[0];
+
     try {
-      const status = await this.serverService.getMyAccountStatus();
-      const currentPath = this.router.url.split('?')[0];
+      const status = await this.getStatus();
 
       const stageRoutes: { [key: string]: string } = {
         no_package: '/onboarding/select-package',
@@ -48,15 +95,15 @@ export class OnboardingStatusGuard implements CanActivate, CanActivateChild {
       const targetRoute = stageRoutes[status.stage];
 
       if (targetRoute) {
-        // User must be on their designated onboarding screen.
-        if (!currentPath.startsWith(targetRoute)) {
-          return this.router.createUrlTree([targetRoute]);
+        // Already navigating to (or inside) the correct onboarding screen — allow, no redirect.
+        if (currentPath === targetRoute || currentPath.startsWith(targetRoute + '/')) {
+          return true;
         }
-        return true;
+        return this.router.createUrlTree([targetRoute]);
       }
 
       // stage === 'active' — fully unlocked.
-      // If they're sitting on an onboarding screen, push them into the dashboard.
+      // If they're heading into /onboarding, bounce them to the dashboard instead.
       if (currentPath.startsWith('/onboarding')) {
         return this.router.createUrlTree(['/admin/dashboard']);
       }
